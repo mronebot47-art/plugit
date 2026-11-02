@@ -1,0 +1,236 @@
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+@import "tailwindcss";
+
+/* ── Design Tokens ────────────────────────────────────────── */
+:root {
+  --paper:  #F2EEE6;
+  --ink:    #14130F;
+  --road:   #2A2924;
+  --muted:  #8A8577;
+  --line:   #D8D2C4;
+  --volt:   #C6FF3D;
+  --signal: #FF5B2E;
+  --ok:     #1F8A5B;
+
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body:    'Instrument Sans', sans-serif;
+  --font-data:    'JetBrains Mono', monospace;
+}
+
+.dark {
+  --paper: #0E0E0B;
+  --ink:   #F2EEE6;
+  --line:  #2B2A24;
+  /* --volt, --signal, --ok remain constant */
+}
+
+/* ── Tailwind 4 theme tokens ──────────────────────────────── */
+@theme inline {
+  --color-paper:  var(--paper);
+  --color-ink:    var(--ink);
+  --color-road:   var(--road);
+  --color-muted:  var(--muted);
+  --color-line:   var(--line);
+  --color-volt:   var(--volt);
+  --color-signal: var(--signal);
+  --color-ok:     var(--ok);
+
+  --font-display: var(--font-display);
+  --font-body:    var(--font-body);
+  --font-data:    var(--font-data);
+
+  /* Border radius: only 2px on data surfaces, 9999px for pills */
+  --radius-DEFAULT: 2px;
+  --radius-sm:      2px;
+  --radius-md:      2px;
+  --radius-lg:      2px;
+  --radius-full:    9999px;
+}
+
+/* ── Base Reset ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Film grain overlay ───────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 1;
+  mix-blend-mode: overlay;
+}
+
+/* ── Typography helpers ───────────────────────────────────── */
+.font-display { font-family: var(--font-display); }
+.font-body    { font-family: var(--font-body); }
+.font-data    { font-family: var(--font-data); }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* ── Focus ring (WCAG AA) ─────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* ── Volt CTA button ──────────────────────────────────────── */
+.btn-volt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--volt);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter 0.1s, transform 0.1s;
+}
+.btn-volt:hover  { filter: brightness(1.06); }
+.btn-volt:active { transform: translateY(1px); }
+
+/* ── Hairline border util ─────────────────────────────────── */
+.border-hairline { border: 1px solid var(--line); }
+
+/* ── Station status rings ─────────────────────────────────── */
+.ring-ok     { box-shadow: 0 0 0 2px var(--ok); }
+.ring-signal { box-shadow: 0 0 0 2px var(--signal); }
+.ring-muted  { box-shadow: 0 0 0 2px var(--muted); }
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+/* ── MapLibre tweaks ──────────────────────────────────────── */
+.maplibregl-map  { font-family: var(--font-body) !important; }
+.maplibregl-ctrl-attrib { font-size: 11px !important; }
+.maplibregl-popup-content {
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  padding: 12px 14px !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+}
+.maplibregl-popup-tip { display: none !important; }
+
+/* ── Signature Map Animations ───────────────────────────────── */
+@keyframes markerDrop {
+  0% {
+    transform: scale(0) translateY(-28px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseRadar {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes carBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.anim-marker-drop {
+  animation: markerDrop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.anim-radar-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background: var(--volt);
+  opacity: 0.5;
+  animation: pulseRadar 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.car-glyph-marker {
+  animation: carBob 1s ease-in-out infinite;
+}
+
+/* ── Signature Moment F: Plan B Flash & Marker Shake ──────── */
+@keyframes planBFlash {
+  0%   { box-shadow: inset 0 0 0 4px var(--signal); }
+  50%  { box-shadow: inset 0 0 0 4px var(--signal); }
+  100% { box-shadow: inset 0 0 0 0px transparent; }
+}
+.anim-planb-flash {
+  animation: planBFlash 0.4s ease-out forwards;
+}
+
+@keyframes markerShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.anim-marker-shake {
+  animation: markerShake 0.4s ease-in-out;
+}
+
+/* ── Skeleton shimmer ─────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--line) 25%, var(--paper) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2.4s ease-in-out infinite;
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1     !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior:          auto   !important;
+  }
+}
