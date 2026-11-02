@@ -129,10 +129,14 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
 
     prevThemeRef.current = theme;
 
+    const initialCenter: [number, number] = origin
+      ? [origin.lng, origin.lat]
+      : [78.6, 12.85];
+
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: styleUrl,
-      center: [78.6, 12.85], // Center between BLR & Chennai
+      center: initialCenter,
       zoom: 7.5,
       attributionControl: false,
     });
@@ -413,6 +417,18 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, [route, mapLoaded, renderRouteAndReachability]);
+
+  // Pan camera to origin when origin changes and no active route
+  useEffect(() => {
+    if (!mapLoaded || !mapInstance.current || !origin) return;
+    if (!route) {
+      mapInstance.current.flyTo({
+        center: [origin.lng, origin.lat],
+        zoom: 10,
+        duration: 1000,
+      });
+    }
+  }, [origin, route, mapLoaded]);
 
   /**
    * Interactive "Preview Drive" simulation handler

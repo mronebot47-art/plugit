@@ -18,8 +18,16 @@ export function LocationInput({ placeholder, value, onChange, label }: Props) {
   const [loading, setLoading]   = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sync internal input query when value prop changes externally
+  useEffect(() => {
+    setQuery(value?.label ?? '');
+  }, [value?.label]);
+
   const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setResults([]); return; }
+    if (q.length < 2) {
+      setResults([]);
+      return;
+    }
     setLoading(true);
     try {
       const data = await fetchGeocode(q);
@@ -30,7 +38,7 @@ export function LocationInput({ placeholder, value, onChange, label }: Props) {
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => search(query), 250);
+    timerRef.current = setTimeout(() => search(query), 200);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [query, search]);
 
@@ -41,30 +49,60 @@ export function LocationInput({ placeholder, value, onChange, label }: Props) {
     setResults([]);
   }
 
+  function handleClear() {
+    setQuery('');
+    onChange(null);
+    setResults([]);
+  }
+
   return (
     <div className="relative">
       <label className="font-data text-[12px] text-[var(--muted)] block mb-1 tracking-wider uppercase">
         {label}
       </label>
-      <div className="relative">
+      <div className="relative flex items-center">
         <input
           type="text"
           value={query}
-          onChange={e => { setQuery(e.target.value); setOpen(true); onChange(null); }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 200)}
+          onChange={e => {
+            setQuery(e.target.value);
+            setOpen(true);
+            if (!e.target.value) onChange(null);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && results.length > 0) {
+              e.preventDefault();
+              select(results[0]!);
+            }
+          }}
+          onFocus={() => {
+            setOpen(true);
+            if (query.length >= 2) search(query);
+          }}
+          onBlur={() => setTimeout(() => setOpen(false), 250)}
           placeholder={placeholder}
           aria-label={label}
           aria-autocomplete="list"
           aria-expanded={open && results.length > 0}
           className="w-full border border-[var(--line)] bg-[var(--paper)] text-[var(--ink)]
-            px-3 py-2.5 text-[14px] rounded-[2px] outline-none
+            px-3 py-2.5 pr-8 text-[14px] rounded-[2px] outline-none
             focus:border-[var(--ink)] transition-colors"
           style={{ minHeight: 44 }}
         />
+
+        {query && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-3 text-[var(--muted)] hover:text-[var(--ink)] text-[14px] font-bold p-1"
+            title="Clear"
+          >
+            &times;
+          </button>
+        )}
+
         {loading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2
-            font-data text-[12px] text-[var(--muted)]">
+          <span className="absolute right-8 font-data text-[12px] text-[var(--muted)]">
             ...
           </span>
         )}
@@ -73,9 +111,9 @@ export function LocationInput({ placeholder, value, onChange, label }: Props) {
       {open && results.length > 0 && (
         <ul
           role="listbox"
-          className="absolute z-50 top-full left-0 right-0 mt-1
+          className="absolute z-50 top-full left-0 right-0 mt-1 max-h-60
             bg-[var(--paper)] border border-[var(--line)] rounded-[2px]
-            shadow-lg overflow-hidden divide-y divide-[var(--line)]"
+            shadow-xl overflow-y-auto divide-y divide-[var(--line)]"
         >
           {results.map((r, i) => (
             <li
@@ -84,8 +122,9 @@ export function LocationInput({ placeholder, value, onChange, label }: Props) {
               aria-selected={false}
               onMouseDown={() => select(r)}
               className="px-3 py-2.5 text-[13px] cursor-pointer
-                hover:bg-[var(--line)] transition-colors"
+                hover:bg-[var(--line)] transition-colors flex items-center gap-2"
             >
+              <span className="text-[var(--muted)] text-[11px] font-data uppercase">IN</span>
               <span className="text-[var(--ink)] font-medium">{r.label}</span>
             </li>
           ))}

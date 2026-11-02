@@ -139,23 +139,139 @@ app.get('/api/vehicles', (c) => {
   return c.json(VEHICLES);
 });
 
-// ── 3. GET /api/geocode ────────────────────────────────────────
-app.get('/api/geocode', (c) => {
-  const q = (c.req.query('q') || '').toLowerCase().trim();
-  const places = [
-    { label: 'Bengaluru, MG Road, Karnataka', lat: 12.9756, lng: 77.6097 },
-    { label: 'Bengaluru Airport, Devanahalli, Karnataka', lat: 13.1986, lng: 77.7066 },
-    { label: 'Chennai, Marina Beach, Tamil Nadu', lat: 13.0334, lng: 80.2785 },
-    { label: 'Chennai Airport, Meenambakkam, Tamil Nadu', lat: 12.9941, lng: 80.1709 },
-    { label: 'Hosur Bypass, Tamil Nadu', lat: 12.7354, lng: 77.8324 },
-    { label: 'Krishnagiri Toll Plaza, NH 44, Tamil Nadu', lat: 12.5266, lng: 78.2144 },
-    { label: 'Vellore Green Circle, NH 48, Tamil Nadu', lat: 12.9165, lng: 79.1325 },
-    { label: 'Hyderabad, Gachibowli, Telangana', lat: 17.4401, lng: 78.3489 },
-    { label: 'Mysuru, Palace Circle, Karnataka', lat: 12.2958, lng: 76.6394 },
-  ];
+// ── 3. GET /api/geocode (Live Nationwide Geocoding + Comprehensive Cache) ──
+const MAJOR_INDIAN_PLACES = [
+  // Metro Centers & Capitals
+  { label: 'Mumbai, CST, Maharashtra', lat: 18.9401, lng: 72.8347 },
+  { label: 'Mumbai Airport (BOM), Mumbai, Maharashtra', lat: 19.0896, lng: 72.8656 },
+  { label: 'Pune, Shivajinagar, Maharashtra', lat: 18.5308, lng: 73.8475 },
+  { label: 'Pune Airport (PNQ), Lohegaon, Maharashtra', lat: 18.5804, lng: 73.9182 },
+  { label: 'Navi Mumbai, Vashi, Maharashtra', lat: 19.0771, lng: 72.9986 },
+  { label: 'Thane, Teen Hath Naka, Maharashtra', lat: 19.186, lng: 72.9759 },
+  { label: 'Nashik, Panchavati, Maharashtra', lat: 19.9975, lng: 73.7898 },
+  { label: 'Nagpur, Zero Mile, Maharashtra', lat: 21.1458, lng: 79.0882 },
+  { label: 'Delhi, Connaught Place, Delhi', lat: 28.6328, lng: 77.2198 },
+  { label: 'Delhi Airport (DEL), IGI Terminal 3, Delhi', lat: 28.5562, lng: 77.1 },
+  { label: 'Noida, Sector 18, Uttar Pradesh', lat: 28.5714, lng: 77.3268 },
+  { label: 'Greater Noida, Pari Chowk, Uttar Pradesh', lat: 28.4682, lng: 77.5097 },
+  { label: 'Gurugram, Cyber City, Haryana', lat: 28.4952, lng: 77.0891 },
+  { label: 'Faridabad, Bata Chowk, Haryana', lat: 28.4089, lng: 77.3178 },
+  { label: 'Jaipur, MI Road, Rajasthan', lat: 26.918, lng: 75.801 },
+  { label: 'Jaipur Airport (JAI), Sanganer, Rajasthan', lat: 26.8289, lng: 75.8056 },
+  { label: 'Agra, Eastern Gate Taj, Uttar Pradesh', lat: 27.1751, lng: 78.0421 },
+  { label: 'Mathura, Krishna Janmabhoomi, Uttar Pradesh', lat: 27.4924, lng: 77.6737 },
+  { label: 'Lucknow, Hazratganj, Uttar Pradesh', lat: 26.8467, lng: 80.9462 },
+  { label: 'Kanpur, Mall Road, Uttar Pradesh', lat: 26.4499, lng: 80.3319 },
+  { label: 'Varanasi, Cantt Railway Station, Uttar Pradesh', lat: 25.3216, lng: 82.9876 },
+  { label: 'Chandigarh, Sector 17, Chandigarh', lat: 30.7398, lng: 76.7827 },
+  { label: 'Amritsar, Golden Temple Town, Punjab', lat: 31.62, lng: 74.8765 },
+  { label: 'Dehradun, Clock Tower, Uttarakhand', lat: 30.3165, lng: 78.0322 },
+  { label: 'Bengaluru, MG Road, Karnataka', lat: 12.9756, lng: 77.6097 },
+  { label: 'Bengaluru Airport (BLR), Devanahalli, Karnataka', lat: 13.1986, lng: 77.7066 },
+  { label: 'Bengaluru, Electronic City, Karnataka', lat: 12.8452, lng: 77.6602 },
+  { label: 'Mysuru, Palace Circle, Karnataka', lat: 12.2958, lng: 76.6394 },
+  { label: 'Mangaluru, Hampankatta, Karnataka', lat: 12.8708, lng: 74.8431 },
+  { label: 'Hubballi, Chennamma Circle, Karnataka', lat: 15.3647, lng: 75.124 },
+  { label: 'Belagavi, Rani Chennamma Circle, Karnataka', lat: 15.8497, lng: 74.4977 },
+  { label: 'Chennai, Marina Beach, Tamil Nadu', lat: 13.0334, lng: 80.2785 },
+  { label: 'Chennai Airport (MAA), Meenambakkam, Tamil Nadu', lat: 12.9941, lng: 80.1709 },
+  { label: 'Coimbatore, Gandhipuram, Tamil Nadu', lat: 11.0168, lng: 76.9558 },
+  { label: 'Madurai, Meenakshi Amman, Tamil Nadu', lat: 9.9195, lng: 78.1193 },
+  { label: 'Salem, Junction Bypass, Tamil Nadu', lat: 11.6643, lng: 78.146 },
+  { label: 'Hosur, Bus Stand Bypass, Tamil Nadu', lat: 12.7354, lng: 77.8324 },
+  { label: 'Krishnagiri Toll Plaza, NH 44, Tamil Nadu', lat: 12.5266, lng: 78.2144 },
+  { label: 'Vellore, Green Circle, Tamil Nadu', lat: 12.9165, lng: 79.1325 },
+  { label: 'Hyderabad, Gachibowli, Telangana', lat: 17.4401, lng: 78.3489 },
+  { label: 'Hyderabad, Charminar, Telangana', lat: 17.3616, lng: 78.4747 },
+  { label: 'Hyderabad Airport (HYD), Shamshabad, Telangana', lat: 17.2403, lng: 78.4294 },
+  { label: 'Warangal, Hanamkonda, Telangana', lat: 18.0001, lng: 79.5882 },
+  { label: 'Visakhapatnam, RK Beach, Andhra Pradesh', lat: 17.6868, lng: 83.2185 },
+  { label: 'Vijayawada, Benz Circle, Andhra Pradesh', lat: 16.5062, lng: 80.648 },
+  { label: 'Tirupati, Alipiri, Andhra Pradesh', lat: 13.6288, lng: 79.4192 },
+  { label: 'Kochi, Edappally Lulu Mall, Kerala', lat: 10.0261, lng: 76.3084 },
+  { label: 'Kochi Airport (COK), Nedumbassery, Kerala', lat: 10.1556, lng: 76.3914 },
+  { label: 'Thiruvananthapuram, East Fort, Kerala', lat: 8.5241, lng: 76.9366 },
+  { label: 'Kozhikode, Mananchira, Kerala', lat: 11.2588, lng: 75.7804 },
+  { label: 'Kolkata, Park Street, West Bengal', lat: 22.5518, lng: 88.3524 },
+  { label: 'Kolkata Airport (CCU), Dum Dum, West Bengal', lat: 22.6547, lng: 88.4467 },
+  { label: 'Siliguri, Sevoke Road, West Bengal', lat: 26.7271, lng: 88.4354 },
+  { label: 'Bhubaneswar, Master Canteen, Odisha', lat: 20.2961, lng: 85.8245 },
+  { label: 'Patna, Gandhi Maidan, Bihar', lat: 25.5941, lng: 85.1376 },
+  { label: 'Ranchi, Main Road, Jharkhand', lat: 23.3441, lng: 85.3096 },
+  { label: 'Ahmedabad, SG Highway, Gujarat', lat: 23.0225, lng: 72.5714 },
+  { label: 'Ahmedabad Airport (AMD), Hansol, Gujarat', lat: 23.0734, lng: 72.6347 },
+  { label: 'Surat, Dumas Road, Gujarat', lat: 21.1702, lng: 72.8311 },
+  { label: 'Vadodara, Alkapuri, Gujarat', lat: 22.3072, lng: 73.1812 },
+  { label: 'Bhopal, MP Nagar, Madhya Pradesh', lat: 23.2599, lng: 77.4126 },
+  { label: 'Indore, Vijay Nagar, Madhya Pradesh', lat: 22.7196, lng: 75.8577 },
+  { label: 'Panaji, Church Square, Goa', lat: 15.4909, lng: 73.8278 },
+  { label: 'Goa Airport (GOI/GOX), Dabolim, Goa', lat: 15.3808, lng: 73.8314 },
+  { label: 'Guwahati, GS Road, Assam', lat: 26.1445, lng: 91.7362 },
+];
 
-  const matched = places.filter((p) => p.label.toLowerCase().includes(q));
-  return c.json(matched.length > 0 ? matched : places.slice(0, 5));
+app.get('/api/geocode', async (c) => {
+  const q = (c.req.query('q') || '').trim();
+  if (!q) {
+    return c.json(MAJOR_INDIAN_PLACES.slice(0, 8));
+  }
+
+  const qLower = q.toLowerCase();
+  const localMatches = MAJOR_INDIAN_PLACES.filter((p) =>
+    p.label.toLowerCase().includes(qLower)
+  );
+
+  // If query is at least 2 chars, also query Photon live geocoder
+  let photonMatches: Array<{ label: string; lat: number; lng: number }> = [];
+  if (q.length >= 2) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2500);
+      const photonRes = await fetch(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8`,
+        {
+          headers: { 'User-Agent': 'PlugIt/1.0' },
+          signal: controller.signal,
+        }
+      );
+      clearTimeout(timeout);
+
+      if (photonRes.ok) {
+        const photonData = (await photonRes.json()) as any;
+        const features = photonData.features || [];
+        photonMatches = features
+          .filter((f: any) => f.properties?.countrycode === 'IN' || f.properties?.country === 'India')
+          .map((f: any) => {
+            const props = f.properties || {};
+            const parts = [props.name, props.city || props.district, props.state, 'India']
+              .filter(Boolean)
+              .filter((val: string, idx: number, arr: string[]) => arr.indexOf(val) === idx);
+            return {
+              label: parts.join(', '),
+              lat: Number(f.geometry.coordinates[1].toFixed(5)),
+              lng: Number(f.geometry.coordinates[0].toFixed(5)),
+            };
+          });
+      }
+    } catch (err) {
+      console.warn('[Geocode] Photon lookup timed out or failed, using local database:', err);
+    }
+  }
+
+  // Merge photon matches first, then local matches, deduplicating by proximity (< 5km)
+  const combined: Array<{ label: string; lat: number; lng: number }> = [];
+  const allCandidates = [...photonMatches, ...localMatches];
+
+  for (const cand of allCandidates) {
+    const isDuplicate = combined.some(
+      (existing) => haversineKm(existing, cand) < 5
+    );
+    if (!isDuplicate) {
+      combined.push(cand);
+    }
+    if (combined.length >= 8) break;
+  }
+
+  return c.json(combined.length > 0 ? combined : MAJOR_INDIAN_PLACES.slice(0, 5));
 });
 
 // ── 4. POST /api/route (Live OSRM + Caching + Degraded Fallback) ─
@@ -184,7 +300,7 @@ app.post('/api/route', async (c) => {
 
   // Attempt live OSRM routing
   try {
-    const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?overview=full&geometries=geojson`;
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?overview=full&geometries=geojson`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
@@ -285,17 +401,23 @@ app.post('/api/route', async (c) => {
     return c.json(fallbackRoute);
   }
 
-  // Generic fallback for any other route (e.g. Mysuru)
+  // Generic fallback for any other route in India (e.g. Mumbai -> Pune, Delhi -> Jaipur, Mysuru)
   const directDist = Math.round(haversineKm({ lat: origin.lat, lng: origin.lng }, { lat: dest.lat, lng: dest.lng }) * 1.25);
+  const steps = 10;
+  const interpCoords: [number, number][] = [];
+  for (let s = 0; s <= steps; s++) {
+    const t = s / steps;
+    interpCoords.push([
+      Number((origin.lng + (dest.lng - origin.lng) * t).toFixed(5)),
+      Number((origin.lat + (dest.lat - origin.lat) * t).toFixed(5)),
+    ]);
+  }
+
   const genericRoute = {
     id: `route-fixture-${Date.now()}`,
     geometry: {
       type: 'LineString',
-      coordinates: [
-        [origin.lng, origin.lat],
-        [(origin.lng + dest.lng) / 2, (origin.lat + dest.lat) / 2],
-        [dest.lng, dest.lat],
-      ] as [number, number][],
+      coordinates: interpCoords,
     },
     distanceKm: directDist,
     durationMin: Math.round((directDist / 60) * 60),
@@ -304,6 +426,7 @@ app.post('/api/route', async (c) => {
   };
 
   return c.json(genericRoute);
+});
 });
 
 // In-memory cache for Open Charge Map live stations

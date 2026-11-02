@@ -48,7 +48,7 @@ export default function StationsPage() {
       <div className="max-w-6xl mx-auto p-6 md:p-10 flex flex-col gap-6">
         <div>
           <span className="font-data text-[12px] text-[var(--muted)] tracking-widest uppercase block mb-1">
-            Directory &middot; Bengaluru Corridor
+            Directory &middot; All-India EV Charging Network
           </span>
           <h1 className="font-display font-black text-[32px] md:text-[44px] tracking-tight leading-none">
             Highway Charging Stations
@@ -62,7 +62,7 @@ export default function StationsPage() {
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between border-y border-[var(--line)] py-4">
           <input
             type="text"
-            placeholder="Search operator, highway, city..."
+            placeholder="Search operator, highway, city (e.g. Pune, Jaipur, Tata Power)..."
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             className="border border-[var(--line)] bg-[var(--paper)] text-[var(--ink)] px-3 py-2 text-[14px] rounded-[2px] outline-none focus:border-[var(--ink)] sm:w-80"

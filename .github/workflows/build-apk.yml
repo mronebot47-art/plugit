@@ -34,9 +34,10 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Fix gradlew permissions and line endings
+      - name: Fix gradlew permissions and configure SDK
         run: |
           cd android
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
           sed -i 's/\r$//' ./gradlew
           chmod +x ./gradlew
 

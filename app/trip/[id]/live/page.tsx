@@ -102,7 +102,7 @@ export default function LiveTripPage() {
 
     try {
       const res = await fetchReplan({
-        routeId: route?.id || 'blr-chennai',
+        routeId: route?.id || tripId || 'live-trip',
         vehicle: activeVehicle,
         mode: mode || 'normal',
         currentDistanceKm: Math.round(progressKm),

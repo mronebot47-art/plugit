@@ -103,7 +103,7 @@ export function computePlan(params: {
         detourKm: Number((distKm * 2).toFixed(1)),
       };
     })
-    .filter((s) => (s.detourKm || 0) <= 6 && s.distanceAlongRoute > 5 && s.distanceAlongRoute < totalRouteKm - 5)
+    .filter((s) => (s.detourKm || 0) <= 25 && s.distanceAlongRoute > 5 && s.distanceAlongRoute < totalRouteKm - 5)
     .sort((a, b) => (a.distanceAlongRoute || 0) - (b.distanceAlongRoute || 0));
 
   // If startSoc is enough to reach destination with targetArrivalSoc reserve, 0 stops needed!

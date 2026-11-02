@@ -84,12 +84,9 @@ export function PlannerPanel() {
       setError(null);
 
       try {
-        // Fetch route if not yet loaded or endpoints changed
-        let activeRoute = route;
-        if (!activeRoute || activeRoute.id.startsWith('fallback')) {
-          activeRoute = await fetchRoute(currentOrigin, currentDest);
-          setRoute(activeRoute);
-        }
+        // Always fetch a fresh route for the specified origin and destination
+        const activeRoute = await fetchRoute(currentOrigin, currentDest);
+        setRoute(activeRoute);
 
         // Call POST /api/plan
         const planRes = await fetchPlan({
@@ -133,7 +130,6 @@ export function PlannerPanel() {
     [
       origin,
       destination,
-      route,
       activeVehicle,
       selectedVehicleId,
       customVehicle,
@@ -178,8 +174,47 @@ export function PlannerPanel() {
         </p>
       </div>
 
-      {/* Preset Corridor shortcuts */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Preset Corridor shortcuts across India */}
+      <div className="flex gap-1.5 flex-wrap">
+        <button
+          type="button"
+          onClick={() => {
+            const org = { label: 'Mumbai, CST, Maharashtra', lat: 18.9401, lng: 72.8347 };
+            const dst = { label: 'Pune, Shivajinagar, Maharashtra', lat: 18.5308, lng: 73.8475 };
+            setOrigin(org);
+            setDestination(dst);
+            executePlan(org, dst);
+          }}
+          className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
+        >
+          &rarr; Mumbai &rarr; Pune (~145km)
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const org = { label: 'Delhi, Connaught Place, Delhi', lat: 28.6328, lng: 77.2198 };
+            const dst = { label: 'Jaipur, MI Road, Rajasthan', lat: 26.918, lng: 75.801 };
+            setOrigin(org);
+            setDestination(dst);
+            executePlan(org, dst);
+          }}
+          className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
+        >
+          &rarr; Delhi &rarr; Jaipur (~285km)
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const org = { label: 'Bengaluru, MG Road, Karnataka', lat: 12.9756, lng: 77.6097 };
+            const dst = { label: 'Mysuru, Palace Circle, Karnataka', lat: 12.2958, lng: 76.6394 };
+            setOrigin(org);
+            setDestination(dst);
+            executePlan(org, dst);
+          }}
+          className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
+        >
+          &rarr; BLR &rarr; Mysuru (~143km)
+        </button>
         <button
           type="button"
           onClick={() => {
@@ -210,8 +245,8 @@ export function PlannerPanel() {
 
       {/* Origin / Dest Inputs */}
       <div className="flex flex-col gap-3">
-        <LocationInput label="From" placeholder="Bengaluru, Karnataka" value={origin} onChange={setOrigin} />
-        <LocationInput label="To" placeholder="Chennai, Tamil Nadu" value={destination} onChange={setDestination} />
+        <LocationInput label="From" placeholder="Enter city (e.g. Mumbai, Delhi, Bengaluru)" value={origin} onChange={setOrigin} />
+        <LocationInput label="To" placeholder="Enter destination (e.g. Pune, Jaipur, Mysuru)" value={destination} onChange={setDestination} />
       </div>
 
       {/* Vehicle select (from GET /api/vehicles) */}

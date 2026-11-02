@@ -27,10 +27,11 @@ export default function PlanPage() {
     setSavingTrip(true);
     try {
       const activeVehicle = selectedVehicleId === 'custom' ? customVehicle : vehicles.find(v => v.id === selectedVehicleId) || vehicles[0]!;
+      const currentRouteId = route?.id || `route-${Date.now()}`;
       const res = await saveTrip({
-        routeId: route?.id || 'blr-chennai',
-        originLabel: origin?.label || 'Bengaluru, MG Road',
-        destLabel: destination?.label || 'Chennai, Marina Beach',
+        routeId: currentRouteId,
+        originLabel: origin?.label || 'Current Origin',
+        destLabel: destination?.label || 'Destination',
         startSoc: startSocPct,
         targetArrivalSoc: targetArrivalSocPct,
         mode,
@@ -43,10 +44,10 @@ export default function PlanPage() {
       if (res.id) {
         router.push(`/trip/${res.id}/live`);
       } else {
-        router.push('/trip/blr-chennai/live');
+        router.push(`/trip/${currentRouteId}/live`);
       }
     } catch {
-      router.push('/trip/blr-chennai/live');
+      router.push(`/trip/${route?.id || 'active'}/live`);
     } finally {
       setSavingTrip(false);
     }
@@ -54,7 +55,7 @@ export default function PlanPage() {
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
-      const shareUrl = `${window.location.origin}/t/blr-chennai`;
+      const shareUrl = `${window.location.origin}/t/${route?.id || 'trip'}`;
       navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
