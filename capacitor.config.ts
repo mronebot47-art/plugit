@@ -8,6 +8,16 @@ const config: CapacitorConfig = {
     url: process.env.CAPACITOR_SERVER_URL || 'https://plugit-b9zk94aob-team-namee.vercel.app',
     cleartext: true,
     androidScheme: 'https',
+    allowNavigation: [
+      'plugit-b9zk94aob-team-namee.vercel.app',
+      '*.vercel.app',
+      'plugit-9k9w.onrender.com',
+      '*.onrender.com',
+      'basemaps.cartocdn.com',
+      '*.cartocdn.com',
+      'api.maptiler.com',
+      '*.maptiler.com',
+    ],
   },
   android: {
     allowMixedContent: true,
