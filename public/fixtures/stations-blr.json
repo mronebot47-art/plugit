@@ -1,0 +1,172 @@
+[
+  {
+    "id": "blr-1",
+    "name": "Tata Power EZ Charge - MG Road Metro",
+    "operator": "Tata Power EZ Charge",
+    "lat": 12.9756,
+    "lng": 77.6097,
+    "address": "MG Road Metro Station Parking, Bengaluru, Karnataka",
+    "connectors": [
+      { "type": "CCS2", "kw": 60, "qty": 2 },
+      { "type": "Type2", "kw": 7.2, "qty": 2 }
+    ],
+    "maxKw": 60,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.82
+  },
+  {
+    "id": "blr-2",
+    "name": "Statiq Fast Hub - Electronic City Phase 1",
+    "operator": "Statiq",
+    "lat": 12.8452,
+    "lng": 77.6602,
+    "address": "Velankani Tech Park, Hosur Rd, Bengaluru, Karnataka",
+    "connectors": [
+      { "type": "CCS2", "kw": 120, "qty": 4 },
+      { "type": "Type2", "kw": 22, "qty": 2 }
+    ],
+    "maxKw": 120,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.65
+  },
+  {
+    "id": "blr-3",
+    "name": "Zeon Charging - Attibele Toll Plaza",
+    "operator": "Zeon",
+    "lat": 12.7785,
+    "lng": 77.7712,
+    "address": "NH 44, Attibele, Karnataka",
+    "connectors": [
+      { "type": "CCS2", "kw": 50, "qty": 2 }
+    ],
+    "maxKw": 50,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.74
+  },
+  {
+    "id": "hosur-1",
+    "name": "Jio-bp pulse - Hosur Highway Hub",
+    "operator": "Jio-bp pulse",
+    "lat": 12.7354,
+    "lng": 77.8324,
+    "address": "NH 44, Hosur Bypass, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 60, "qty": 2 },
+      { "type": "BharatDC001", "kw": 15, "qty": 1 }
+    ],
+    "maxKw": 60,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.58
+  },
+  {
+    "id": "krishnagiri-1",
+    "name": "ChargeZone - Highway Plaza Krishnagiri",
+    "operator": "ChargeZone",
+    "lat": 12.5266,
+    "lng": 78.2144,
+    "address": "Near Krishnagiri Toll Plaza, NH 44, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 60, "qty": 4 }
+    ],
+    "maxKw": 60,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.70
+  },
+  {
+    "id": "krishnagiri-2",
+    "name": "Tata Power Fast Hub - Krishnagiri",
+    "operator": "Tata Power EZ Charge",
+    "lat": 12.5180,
+    "lng": 78.2250,
+    "address": "Hotel Saravana Bhavan Complex, NH 44, Krishnagiri",
+    "connectors": [
+      { "type": "CCS2", "kw": 30, "qty": 2 }
+    ],
+    "maxKw": 30,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.45
+  },
+  {
+    "id": "ambur-1",
+    "name": "Zeon Charging - Star Biryani Ambur",
+    "operator": "Zeon",
+    "lat": 12.7915,
+    "lng": 78.7165,
+    "address": "NH 48, Ambur, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 50, "qty": 2 }
+    ],
+    "maxKw": 50,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.62
+  },
+  {
+    "id": "vellore-1",
+    "name": "Statiq Superhub - Vellore Bypass",
+    "operator": "Statiq",
+    "lat": 12.9165,
+    "lng": 79.1325,
+    "address": "Near Green Circle, NH 48, Vellore, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 120, "qty": 4 },
+      { "type": "Type2", "kw": 11, "qty": 2 }
+    ],
+    "maxKw": 120,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.78
+  },
+  {
+    "id": "kanchipuram-1",
+    "name": "Tata Power - Sriperumbudur Corridor",
+    "operator": "Tata Power EZ Charge",
+    "lat": 12.9692,
+    "lng": 79.9458,
+    "address": "NH 48, Sriperumbudur Industrial Hub, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 60, "qty": 2 }
+    ],
+    "maxKw": 60,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.55
+  },
+  {
+    "id": "chennai-1",
+    "name": "Jio-bp pulse - Guindy Hub",
+    "operator": "Jio-bp pulse",
+    "lat": 13.0067,
+    "lng": 80.2023,
+    "address": "Anna Salai, Guindy, Chennai, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 60, "qty": 4 },
+      { "type": "Type2", "kw": 22, "qty": 2 }
+    ],
+    "maxKw": 60,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.85
+  },
+  {
+    "id": "chennai-2",
+    "name": "Zeon Marina - Santhome High Road",
+    "operator": "Zeon",
+    "lat": 13.0334,
+    "lng": 80.2785,
+    "address": "Near Marina Beach, Mylapore, Chennai, Tamil Nadu",
+    "connectors": [
+      { "type": "CCS2", "kw": 50, "qty": 2 }
+    ],
+    "maxKw": 50,
+    "status": "working",
+    "source": "fixture",
+    "probFree": 0.90
+  }
+]

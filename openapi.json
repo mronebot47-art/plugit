@@ -1,0 +1,678 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PlugIt EV Trip Planner API",
+    "version": "1.0.0",
+    "description": "Know where you'll charge before you leave. EV route planning API for Indian highway corridors."
+  },
+  "servers": [
+    { "url": "http://localhost:8000" }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "uptime": { "type": "number" },
+                    "demoMode": { "type": "boolean" }
+                  },
+                  "required": ["status", "uptime"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vehicles": {
+      "get": {
+        "summary": "Get supported EV vehicle profiles",
+        "responses": {
+          "200": {
+            "description": "List of EV vehicle presets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Vehicle" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geocode": {
+      "get": {
+        "summary": "Geocode place name to coordinates",
+        "parameters": [
+          { "name": "q", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Geocoded results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/GeoPoint" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/route": {
+      "post": {
+        "summary": "Get route geometry between origin and destination",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": { "$ref": "#/components/schemas/LatLng" },
+                  "dest": { "$ref": "#/components/schemas/LatLng" }
+                },
+                "required": ["origin", "dest"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Route geometry and segments",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RouteData" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/stations": {
+      "get": {
+        "summary": "Get charging stations in radius or bbox",
+        "parameters": [
+          { "name": "lat", "in": "query", "schema": { "type": "number" } },
+          { "name": "lng", "in": "query", "schema": { "type": "number" } },
+          { "name": "radiusKm", "in": "query", "schema": { "type": "number", "default": 50 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of stations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Station" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stations/corridor": {
+      "get": {
+        "summary": "Get stations within detour distance of route corridor",
+        "parameters": [
+          { "name": "routeId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Corridor stations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Station" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plan": {
+      "post": {
+        "summary": "Compute optimal EV charging stops for route",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PlanRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Plan alternatives and reachability",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PlanResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ApiErrorResponse" },
+          "422": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/plan/replan": {
+      "post": {
+        "summary": "Recompute route plan when a charging stop fails (Plan B)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "routeId": { "type": "string" },
+                  "vehicle": { "$ref": "#/components/schemas/Vehicle" },
+                  "mode": { "type": "string", "enum": ["cautious", "normal", "optimistic"] },
+                  "currentDistanceKm": { "type": "number" },
+                  "currentSoc": { "type": "number" },
+                  "failedStationIds": { "type": "array", "items": { "type": "string" } },
+                  "departAt": { "type": "string" },
+                  "previousStopIds": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["routeId", "vehicle", "currentDistanceKm", "currentSoc", "failedStationIds"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rerouted plan with Delta explanation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "alternatives": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/TripAlternative" }
+                    },
+                    "delta": {
+                      "type": "object",
+                      "properties": {
+                        "message": { "type": "string" },
+                        "addedMinutes": { "type": "number" },
+                        "addedKm": { "type": "number" },
+                        "reroutedStopName": { "type": "string" }
+                      },
+                      "required": ["message", "addedMinutes", "addedKm"]
+                    }
+                  },
+                  "required": ["alternatives", "delta"]
+                }
+              }
+            }
+          },
+          "422": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/plan/sos": {
+      "post": {
+        "summary": "Find 3 nearest reachable stations in low-battery emergency",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": { "type": "number" },
+                  "lng": { "type": "number" },
+                  "currentSoc": { "type": "number" }
+                },
+                "required": ["lat", "lng", "currentSoc"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "3 nearest reachable stations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "station": { "$ref": "#/components/schemas/Station" },
+                          "distanceKm": { "type": "number" },
+                          "etaMin": { "type": "number" },
+                          "arrivalSoc": { "type": "number" },
+                          "rationale": { "type": "string" }
+                        },
+                        "required": ["station", "distanceKm", "etaMin", "arrivalSoc", "rationale"]
+                      }
+                    }
+                  },
+                  "required": ["options"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "summary": "Get latest reports for station ids",
+        "parameters": [
+          { "name": "stationIds", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Community reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CommunityReport" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Submit a station status report",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "stationId": { "type": "string" },
+                  "status": { "type": "string", "enum": ["working", "queue", "broken", "blocked"] },
+                  "queueMin": { "type": "number" },
+                  "deviceId": { "type": "string" }
+                },
+                "required": ["stationId", "status", "deviceId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Report accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "report": { "$ref": "#/components/schemas/CommunityReport" }
+                  },
+                  "required": ["success", "report"]
+                }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    },
+    "/api/reports/stream": {
+      "get": {
+        "summary": "SSE Stream of real-time community reports",
+        "parameters": [
+          { "name": "stationIds", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "EventSource stream",
+            "content": {
+              "text/event-stream": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips": {
+      "post": {
+        "summary": "Save a trip for sharing or live navigation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SaveTripRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Trip saved with id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" }
+                  },
+                  "required": ["id"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips/{id}": {
+      "get": {
+        "summary": "Get saved trip details",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TripDetails" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ApiErrorResponse" }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "ApiErrorResponse": {
+        "description": "Standardized API Error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiError" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["NO_FEASIBLE_PLAN", "INVALID_REQUEST", "RATE_LIMITED", "NOT_FOUND", "INTERNAL_ERROR"]
+              },
+              "message": { "type": "string" },
+              "details": {
+                "type": "object",
+                "properties": {
+                  "longestGapKm": { "type": "number" },
+                  "vehicleRealRangeKm": { "type": "number" },
+                  "suggestion": { "type": "string" }
+                }
+              },
+              "requestId": { "type": "string" }
+            },
+            "required": ["code", "message", "requestId"]
+          }
+        },
+        "required": ["error"]
+      },
+      "LatLng": {
+        "type": "object",
+        "properties": {
+          "lat": { "type": "number" },
+          "lng": { "type": "number" }
+        },
+        "required": ["lat", "lng"]
+      },
+      "GeoPoint": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string" },
+          "lat": { "type": "number" },
+          "lng": { "type": "number" }
+        },
+        "required": ["label", "lat", "lng"]
+      },
+      "Vehicle": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "usableKwh": { "type": "number" },
+          "whPerKmHwy": { "type": "number" },
+          "maxDcKw": { "type": "number" },
+          "maxAcKw": { "type": "number" },
+          "massKg": { "type": "number" },
+          "connectors": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["id", "name", "usableKwh", "whPerKmHwy", "maxDcKw", "maxAcKw", "massKg", "connectors"]
+      },
+      "Connector": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "kw": { "type": "number" },
+          "qty": { "type": "number" }
+        },
+        "required": ["type", "kw", "qty"]
+      },
+      "Station": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "operator": { "type": "string" },
+          "lat": { "type": "number" },
+          "lng": { "type": "number" },
+          "address": { "type": "string" },
+          "connectors": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Connector" }
+          },
+          "maxKw": { "type": "number" },
+          "status": { "type": "string", "enum": ["working", "unknown", "down"] },
+          "source": { "type": "string" },
+          "lastVerified": { "type": "string" },
+          "availability": {
+            "type": "object",
+            "properties": {
+              "probFree": { "type": "number" },
+              "label": { "type": "string", "enum": ["Estimated", "Reported 12 min ago", "Operator data"] },
+              "forecast12h": { "type": "array", "items": { "type": "number" } }
+            },
+            "required": ["probFree", "label", "forecast12h"]
+          },
+          "distanceAlongRoute": { "type": "number" },
+          "detourKm": { "type": "number" }
+        },
+        "required": ["id", "name", "operator", "lat", "lng", "address", "connectors", "maxKw", "status"]
+      },
+      "RouteSegment": {
+        "type": "object",
+        "properties": {
+          "from": { "$ref": "#/components/schemas/LatLng" },
+          "to": { "$ref": "#/components/schemas/LatLng" },
+          "km": { "type": "number" },
+          "elevDeltaM": { "type": "number" }
+        },
+        "required": ["from", "to", "km"]
+      },
+      "RouteData": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "geometry": { "type": "object" },
+          "distanceKm": { "type": "number" },
+          "durationMin": { "type": "number" },
+          "segments": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RouteSegment" }
+          }
+        },
+        "required": ["id", "geometry", "distanceKm", "durationMin", "segments"]
+      },
+      "PlanStop": {
+        "type": "object",
+        "properties": {
+          "station": { "$ref": "#/components/schemas/Station" },
+          "arrivalSocPct": { "type": "number" },
+          "departureSocPct": { "type": "number" },
+          "chargeMinutes": { "type": "number" },
+          "chargeKwh": { "type": "number" },
+          "costInr": { "type": "number" },
+          "detourMinutes": { "type": "number" },
+          "reliabilityScore": { "type": "number" }
+        },
+        "required": ["station", "arrivalSocPct", "departureSocPct", "chargeMinutes", "chargeKwh", "costInr", "detourMinutes", "reliabilityScore"]
+      },
+      "RibbonPoint": {
+        "type": "object",
+        "properties": {
+          "distanceKm": { "type": "number" },
+          "socPct": { "type": "number" },
+          "type": { "type": "string", "enum": ["drive", "charge"] }
+        },
+        "required": ["distanceKm", "socPct", "type"]
+      },
+      "TripAlternative": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string", "enum": ["Fastest", "Safest"] },
+          "stops": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlanStop" }
+          },
+          "totals": {
+            "type": "object",
+            "properties": {
+              "distanceKm": { "type": "number" },
+              "driveMinutes": { "type": "number" },
+              "chargeMinutes": { "type": "number" },
+              "totalMinutes": { "type": "number" },
+              "costInr": { "type": "number" },
+              "arrivalSocPct": { "type": "number" }
+            },
+            "required": ["distanceKm", "driveMinutes", "chargeMinutes", "totalMinutes", "costInr", "arrivalSocPct"]
+          },
+          "calmIndex": {
+            "type": "object",
+            "properties": {
+              "score": { "type": "number" },
+              "line": { "type": "string" }
+            },
+            "required": ["score", "line"]
+          },
+          "ribbonSeries": {
+            "type": "object",
+            "properties": {
+              "points": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/RibbonPoint" }
+              },
+              "chargeBars": {
+                "type": "array",
+                "items": { "type": "object" }
+              }
+            },
+            "required": ["points"]
+          }
+        },
+        "required": ["label", "stops", "totals", "calmIndex", "ribbonSeries"]
+      },
+      "PlanRequest": {
+        "type": "object",
+        "properties": {
+          "routeId": { "type": "string" },
+          "geometry": { "type": "object" },
+          "vehicle": { "$ref": "#/components/schemas/Vehicle" },
+          "custom": { "$ref": "#/components/schemas/Vehicle" },
+          "startSoc": { "type": "number" },
+          "targetArrivalSoc": { "type": "number" },
+          "mode": { "type": "string", "enum": ["cautious", "normal", "optimistic"] },
+          "departAt": { "type": "string" }
+        },
+        "required": ["startSoc", "targetArrivalSoc", "mode"]
+      },
+      "PlanResponse": {
+        "type": "object",
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TripAlternative" }
+          },
+          "reachabilityKm": { "type": "number" }
+        },
+        "required": ["alternatives", "reachabilityKm"]
+      },
+      "CommunityReport": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "stationId": { "type": "string" },
+          "status": { "type": "string", "enum": ["working", "queue", "broken", "blocked"] },
+          "queueMin": { "type": "number" },
+          "deviceId": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "weight": { "type": "number" }
+        },
+        "required": ["id", "stationId", "status", "deviceId", "createdAt", "weight"]
+      },
+      "SaveTripRequest": {
+        "type": "object",
+        "properties": {
+          "routeId": { "type": "string" },
+          "originLabel": { "type": "string" },
+          "destLabel": { "type": "string" },
+          "startSoc": { "type": "number" },
+          "targetArrivalSoc": { "type": "number" },
+          "mode": { "type": "string" },
+          "selectedLabel": { "type": "string" },
+          "plan": { "$ref": "#/components/schemas/TripAlternative" },
+          "vehicle": { "$ref": "#/components/schemas/Vehicle" }
+        },
+        "required": ["originLabel", "destLabel", "plan"]
+      },
+      "TripDetails": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "originLabel": { "type": "string" },
+          "destLabel": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "plan": { "$ref": "#/components/schemas/TripAlternative" },
+          "vehicle": { "$ref": "#/components/schemas/Vehicle" }
+        },
+        "required": ["id", "originLabel", "destLabel", "plan"]
+      }
+    }
+  }
+}
