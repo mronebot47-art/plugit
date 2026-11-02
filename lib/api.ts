@@ -17,6 +17,30 @@ if (!BASE && process.env.NODE_ENV === 'development') {
   console.warn('[PlugIt API Client] Warning: NEXT_PUBLIC_API_URL is not defined in environment.');
 }
 
+/**
+ * Resolves the active backend API base URL:
+ * 1. process.env.NEXT_PUBLIC_API_URL if configured
+ * 2. plugit.customApiUrl from localStorage (allows mobile/field override)
+ * 3. LAN IP matching (for testing phone & laptop on same Wi-Fi)
+ * 4. Fallback to http://localhost:8000
+ */
+export function getApiBaseUrl(): string {
+  if (BASE) return BASE;
+  if (typeof window !== 'undefined') {
+    try {
+      const custom = localStorage.getItem('plugit.customApiUrl');
+      if (custom) return custom.replace(/\/$/, '');
+      const hostname = window.location.hostname;
+      if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+        if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+          return `${window.location.protocol}//${hostname}:8000`;
+        }
+      }
+    } catch {}
+  }
+  return 'http://localhost:8000';
+}
+
 export class ApiClientError extends Error {
   code: string;
   details?: Record<string, any>;
@@ -61,7 +85,8 @@ export async function apiFetch<T>(
   endpointPath: string,
   options: RequestInit = {}
 ): Promise<ApiResponseWithSource<T>> {
-  const url = `${BASE || 'http://localhost:8000'}${endpointPath.startsWith('/') ? endpointPath : `/${endpointPath}`}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}${endpointPath.startsWith('/') ? endpointPath : `/${endpointPath}`}`;
 
   // 10s timeout via AbortController
   const controller = new AbortController();

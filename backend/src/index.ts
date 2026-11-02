@@ -76,9 +76,29 @@ function containsPhoneNumber(text: string): boolean {
 // ── CORS & Universal Headers Middleware ─────────────────────────
 app.use('*', async (c, next) => {
   const origin = c.req.header('origin') || '';
-  const allowed = ['http://localhost:3000', 'http://127.0.0.1:3000'];
-  if (allowed.includes(origin)) {
-    c.header('Access-Control-Allow-Origin', origin);
+  const envOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const allowed = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'capacitor://localhost',
+    'http://localhost',
+    'https://localhost',
+    ...envOrigins,
+  ];
+
+  if (
+    process.env.ALLOWED_ORIGINS === '*' ||
+    !origin ||
+    allowed.includes(origin) ||
+    allowed.includes('*') ||
+    origin.startsWith('capacitor://') ||
+    origin.startsWith('ionic://') ||
+    origin.includes('localhost')
+  ) {
+    c.header('Access-Control-Allow-Origin', origin || '*');
   }
   c.header('Access-Control-Allow-Headers', 'Content-Type, X-Request-Id, X-PlugIt-Demo, X-Edit-Token, X-Admin-Token');
   c.header('Access-Control-Expose-Headers', 'X-PlugIt-Source, X-Request-Id, Retry-After, ETag');

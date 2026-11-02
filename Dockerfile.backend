@@ -1,0 +1,22 @@
+# PlugIt Backend Dockerfile (Hono API Service)
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Install dependencies needed for tsx and build
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps --omit=dev || npm install --legacy-peer-deps
+
+# Copy backend source code and contracts
+COPY backend ./backend
+COPY openapi.json ./
+COPY tsconfig.json ./
+
+ENV NODE_ENV=production
+ENV PORT=8000
+EXPOSE 8000
+
+# Install tsx globally or run via npx
+RUN npm install -g tsx
+
+CMD ["tsx", "backend/src/index.ts"]
