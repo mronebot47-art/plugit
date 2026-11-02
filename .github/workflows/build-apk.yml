@@ -16,11 +16,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -31,10 +31,18 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      # App loads a live remote URL (server.url in capacitor.config.ts).
+      # We just need to ensure the webDir ("public") exists for cap sync
+      # then let Capacitor copy it and update native config.
+      - name: Ensure webDir exists for Capacitor
+        run: mkdir -p public
+
       - name: Sync Capacitor
         run: npx cap sync android
+        env:
+          CAPACITOR_SERVER_URL: https://accordance-enhancement-spiritual-produced.trycloudflare.com
 
-      - name: Fix gradlew permissions and configure SDK
+      - name: Configure SDK and fix gradlew
         run: |
           cd android
           echo "sdk.dir=$ANDROID_HOME" > local.properties
