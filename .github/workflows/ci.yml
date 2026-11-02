@@ -1,0 +1,35 @@
+name: Contract Check & Planner Tests
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Backend Tests
+        run: npm test
+
+      - name: Start Backend Service in Background
+        run: |
+          npx tsx backend/src/index.ts &
+          sleep 3
+
+      - name: Run API Contract Checks
+        run: npm run contract-check
