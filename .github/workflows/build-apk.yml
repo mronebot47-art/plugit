@@ -40,7 +40,7 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
         env:
-          CAPACITOR_SERVER_URL: https://accordance-enhancement-spiritual-produced.trycloudflare.com
+          CAPACITOR_SERVER_URL: https://plugit-b9zk94aob-team-namee.vercel.app
 
       - name: Configure SDK and fix gradlew
         run: |

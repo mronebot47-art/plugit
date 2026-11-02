@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'PlugIt',
   webDir: 'public',
   server: {
-    url: process.env.CAPACITOR_SERVER_URL || 'https://accordance-enhancement-spiritual-produced.trycloudflare.com',
+    url: process.env.CAPACITOR_SERVER_URL || 'https://plugit-b9zk94aob-team-namee.vercel.app',
     cleartext: true,
     androidScheme: 'https',
   },
