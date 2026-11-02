@@ -55,8 +55,8 @@ export function StopTimetable({ stops, onSelectStation }: StopTimetableProps) {
               </div>
 
               <div className="flex items-center justify-between text-[11px] font-data text-[var(--muted)] pt-1 border-t border-[var(--line)]/50">
-                <span>Charge: ~{stop.chargeKwh.toFixed(1)} kWh</span>
-                <span className="text-[var(--ink)] font-medium">Est. &#8377;{stop.costInr}</span>
+                <span>Charge: ~{(stop.chargeKwh ?? 0).toFixed(1)} kWh</span>
+                <span className="text-[var(--ink)] font-medium">Est. &#8377;{stop.costInr ?? 0}</span>
               </div>
             </div>
           );

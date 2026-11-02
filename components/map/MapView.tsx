@@ -12,7 +12,7 @@ import type { Station } from '@/lib/types';
 if (typeof window !== 'undefined') {
   try {
     const origin = window.location.origin;
-    maplibregl.setWorkerUrl(`${origin}/maplibre-gl-worker.js`);
+    maplibregl.setWorkerUrl(`${origin}/maplibre-gl-worker.mjs`);
   } catch (e) {
     console.warn('MapLibre worker setup:', e);
   }
@@ -115,7 +115,7 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
 
     try {
       const originUrl = window.location.origin;
-      maplibregl.setWorkerUrl(`${originUrl}/maplibre-gl-worker.js`);
+      maplibregl.setWorkerUrl(`${originUrl}/maplibre-gl-worker.mjs`);
     } catch {}
 
     const styleUrl =

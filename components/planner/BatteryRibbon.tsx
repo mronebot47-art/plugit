@@ -111,8 +111,10 @@ export function BatteryRibbon({ series, stops, totalKm, onHoverKm }: BatteryRibb
         {stops.map((stop, i) => {
           const km = stop.station.distanceAlongRoute ?? 0;
           const x = getX(km);
-          const yArr = getY(stop.arrivalSocPct);
-          const yDep = getY(stop.departureSocPct);
+          const yArr = getY(stop.arrivalSocPct ?? 0);
+          const yDep = getY(stop.departureSocPct ?? 0);
+
+          if (!Number.isFinite(x) || !Number.isFinite(yArr) || !Number.isFinite(yDep)) return null;
 
           return (
             <g key={i}>

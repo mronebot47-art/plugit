@@ -65,24 +65,26 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Demo mode switch at bottom */}
         <div className="p-3">
           <div className="border border-[var(--line)] rounded-[2px] p-3 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between" suppressHydrationWarning>
               <span className="font-data text-[12px] font-bold text-[var(--ink)]">Demo Mode</span>
               <button
                 type="button"
                 onClick={() => setDemoMode(!isDemoMode)}
                 aria-label="Toggle Demo Mode"
+                suppressHydrationWarning
                 className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
                   isDemoMode ? 'bg-[var(--volt)]' : 'bg-[var(--line)]'
                 }`}
               >
                 <div
+                  suppressHydrationWarning
                   className={`bg-[var(--ink)] w-4 h-4 rounded-full shadow-md transform transition-transform ${
                     isDemoMode ? 'translate-x-4' : 'translate-x-0'
                   }`}
                 />
               </button>
             </div>
-            <p className="text-[11px] text-[var(--muted)] leading-tight">
+            <p className="text-[11px] text-[var(--muted)] leading-tight" suppressHydrationWarning>
               {isDemoMode
                 ? 'Active: Sends X-PlugIt-Demo: 1 header.'
                 : 'Offline fallback available when offline.'}
