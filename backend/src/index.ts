@@ -427,7 +427,6 @@ app.post('/api/route', async (c) => {
 
   return c.json(genericRoute);
 });
-});
 
 // In-memory cache for Open Charge Map live stations
 let ocmLiveStations: Station[] = [];
