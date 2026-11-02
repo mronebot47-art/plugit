@@ -37,6 +37,9 @@ export function TopNav({ onMenuToggle }: TopNavProps) {
             fill="var(--volt)" stroke="var(--ink)" strokeWidth="1.5" strokeLinejoin="round"/>
         </svg>
         PlugIt
+        <span className="font-data text-[10px] font-bold uppercase tracking-wider bg-[var(--volt)] text-[var(--ink)] px-1.5 py-0.5 rounded-[2px] ml-1">
+          Campus EV
+        </span>
       </Link>
 
       <div className="flex-1" />

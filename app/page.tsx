@@ -19,32 +19,31 @@ export default function LandingPage() {
         </span>
         <div className="flex-1" />
         <Link href="/plan" className="btn-volt text-[14px] py-2 px-5">
-          Plan a trip
+          Campus Map
         </Link>
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="px-6 md:px-16 pt-20 pb-4 max-w-5xl">
         <p className="font-data text-[12px] text-[var(--muted)] mb-6 tracking-widest uppercase">
-          EV trip planner · India · Beta
+          In-Campus EV Infrastructure · Smart University & Tech Hub
         </p>
         <h1
           className="font-display font-black text-[44px] md:text-[72px] leading-none tracking-tight mb-6"
           style={{ fontVariationSettings: "'wdth' 100, 'opsz' 48" }}
         >
-          {"Don't plan around"}<br />
-          {"the charger."}<br />
+          {"Campus charging,"}<br />
+          {"zero guesswork."}<br />
           <span className="text-[var(--muted)]"
             style={{ fontVariationSettings: "'wdth' 75, 'opsz' 48" }}>
-            Plan around the road.
+            Real-time stalls for 2W & 4W.
           </span>
         </h1>
         <p className="text-[16px] md:text-[20px] text-[var(--muted)] mb-8 max-w-xl leading-relaxed">
-          Pick your car and battery level. We find the stops that are working,
-          reachable, and worth the detour.
+          Navigate between academic blocks, student hostels, research labs, and sports arenas. Check live stall occupancy, reserved bays, and charge your EV on campus.
         </p>
         <Link href="/plan" className="btn-volt text-[16px]">
-          Plan a trip
+          Launch Campus Map
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"/>
@@ -59,14 +58,14 @@ export default function LandingPage() {
       {/* ── Stats ───────────────────────────────────────────────── */}
       <section className="border-t border-[var(--line)] px-6 md:px-16 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl">
-          <Stat num="142" unit="km"
-            label="Longest gap on the Bengaluru–Hyderabad corridor with no fast DC charger"
+          <Stat num="8" unit="bays"
+            label="Dedicated campus charging hubs across Academic, Hostel, and R&D zones"
             illustrative />
-          <Stat num="68" unit="%"
-            label="of Indian highway DC chargers have no real-time availability data"
+          <Stat num="100" unit="%"
+            label="Solar-assisted clean microgrid power supply for student & faculty EVs"
             illustrative />
-          <Stat num="23" unit="min"
-            label="Average unplanned detour when a charger is down or full"
+          <Stat num="120" unit="kW"
+            label="Peak DC ultra-fast charging speed at the R&D Innovation Park canopy"
             illustrative />
         </div>
       </section>

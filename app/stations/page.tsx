@@ -48,13 +48,13 @@ export default function StationsPage() {
       <div className="max-w-6xl mx-auto p-6 md:p-10 flex flex-col gap-6">
         <div>
           <span className="font-data text-[12px] text-[var(--muted)] tracking-widest uppercase block mb-1">
-            Directory &middot; All-India EV Charging Network
+            Campus Infrastructure &middot; Smart Microgrid
           </span>
           <h1 className="font-display font-black text-[32px] md:text-[44px] tracking-tight leading-none">
-            Highway Charging Stations
+            In-Campus Charging Stalls
           </h1>
           <p className="text-[14px] md:text-[16px] text-[var(--muted)] mt-2">
-            Real station operators across Indian highway corridors with estimated availability and power output.
+            Real-time charging stalls, power ratings, and bay availability across university academic, lab, hostel, and R&D zones.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export default function StationsPage() {
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between border-y border-[var(--line)] py-4">
           <input
             type="text"
-            placeholder="Search operator, highway, city (e.g. Pune, Jaipur, Tata Power)..."
+            placeholder="Search campus bay, block, plug (e.g. Library, Hostels, Solar)..."
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             className="border border-[var(--line)] bg-[var(--paper)] text-[var(--ink)] px-3 py-2 text-[14px] rounded-[2px] outline-none focus:border-[var(--ink)] sm:w-80"

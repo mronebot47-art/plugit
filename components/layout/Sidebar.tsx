@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import { usePlannerStore } from '@/lib/store/planner';
 
 const NAV = [
-  { href: '/', label: 'Home', Icon: HomeIcon },
-  { href: '/plan', label: 'Plan Trip', Icon: RouteIcon },
-  { href: '/stations', label: 'Stations', Icon: ZapIcon },
+  { href: '/', label: 'Overview', Icon: HomeIcon },
+  { href: '/plan', label: 'Campus Map & Route', Icon: RouteIcon },
+  { href: '/stations', label: 'Campus Stalls', Icon: ZapIcon },
 ] as const;
 
 interface SidebarProps {

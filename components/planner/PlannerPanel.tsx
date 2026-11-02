@@ -163,90 +163,83 @@ export function PlannerPanel() {
     <div className="p-6 flex flex-col gap-5 h-full overflow-y-auto">
       {/* Title */}
       <div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="font-data text-[10px] font-bold tracking-widest uppercase bg-[var(--volt)] text-[var(--ink)] px-1.5 py-0.5 rounded-[2px]">
+            In-Campus Hub
+          </span>
+          <span className="font-data text-[11px] text-[var(--muted)]">Smart Microgrid</span>
+        </div>
         <h1
           className="font-display font-black text-[28px] tracking-tight leading-none"
           style={{ fontVariationSettings: "'wdth' 100, 'opsz' 28" }}
         >
-          Plan a trip
+          Campus EV Navigator
         </h1>
         <p className="text-[var(--muted)] text-[14px] mt-1">
-          Where to? Start typing a city.
+          Check live stall availability, charging speeds & routes across campus.
         </p>
       </div>
 
-      {/* Preset Corridor shortcuts across India */}
+      {/* Preset Campus Corridor shortcuts */}
       <div className="flex gap-1.5 flex-wrap">
         <button
           type="button"
           onClick={() => {
-            const org = { label: 'Mumbai, CST, Maharashtra', lat: 18.9401, lng: 72.8347 };
-            const dst = { label: 'Pune, Shivajinagar, Maharashtra', lat: 18.5308, lng: 73.8475 };
+            const org = { label: 'Campus Main Gate & Visitor Bay', lat: 13.021, lng: 77.571 };
+            const dst = { label: 'R&D Innovation Park & Solar Canopy', lat: 13.015, lng: 77.562 };
             setOrigin(org);
             setDestination(dst);
             executePlan(org, dst);
           }}
           className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
         >
-          &rarr; Mumbai &rarr; Pune (~145km)
+          &rarr; Main Gate &rarr; R&D Park (~1.2km)
         </button>
         <button
           type="button"
           onClick={() => {
-            const org = { label: 'Delhi, Connaught Place, Delhi', lat: 28.6328, lng: 77.2198 };
-            const dst = { label: 'Jaipur, MI Road, Rajasthan', lat: 26.918, lng: 75.801 };
+            const org = { label: 'Student Hostel Enclave (Blocks A-D)', lat: 13.0135, lng: 77.568 };
+            const dst = { label: 'Central Library & Academic Complex', lat: 13.0195, lng: 77.5675 };
             setOrigin(org);
             setDestination(dst);
             executePlan(org, dst);
           }}
           className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
         >
-          &rarr; Delhi &rarr; Jaipur (~285km)
+          &rarr; Hostels &rarr; Library (~0.8km)
         </button>
         <button
           type="button"
           onClick={() => {
-            const org = { label: 'Bengaluru, MG Road, Karnataka', lat: 12.9756, lng: 77.6097 };
-            const dst = { label: 'Mysuru, Palace Circle, Karnataka', lat: 12.2958, lng: 76.6394 };
+            const org = { label: 'Engineering & Computing Labs Hub', lat: 13.016, lng: 77.564 };
+            const dst = { label: 'Sports Arena & Student Activity Center', lat: 13.0225, lng: 77.565 };
             setOrigin(org);
             setDestination(dst);
             executePlan(org, dst);
           }}
           className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
         >
-          &rarr; BLR &rarr; Mysuru (~143km)
+          &rarr; Tech Labs &rarr; Sports Arena (~1.5km)
         </button>
         <button
           type="button"
           onClick={() => {
-            const org = { label: 'Bengaluru, MG Road, Karnataka', lat: 12.9756, lng: 77.6097 };
-            const dst = { label: 'Chennai, Marina Beach, Tamil Nadu', lat: 13.0334, lng: 80.2785 };
+            const org = { label: 'Faculty & Staff Housing Enclave', lat: 13.0175, lng: 77.566 };
+            const dst = { label: 'Campus Food Court & Cafeteria Plaza', lat: 13.018, lng: 77.5695 };
             setOrigin(org);
             setDestination(dst);
             executePlan(org, dst);
           }}
           className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
         >
-          &rarr; BLR &rarr; Chennai (~345km)
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const org = { label: 'Bengaluru, MG Road, Karnataka', lat: 12.9756, lng: 77.6097 };
-            const dst = { label: 'Hyderabad, Telangana', lat: 17.385, lng: 78.4867 };
-            setOrigin(org);
-            setDestination(dst);
-            executePlan(org, dst);
-          }}
-          className="font-data text-[11px] border border-[var(--line)] px-2 py-1 rounded-[2px] text-[var(--muted)] hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
-        >
-          &rarr; BLR &rarr; Hyderabad (~570km)
+          &rarr; Faculty Quarters &rarr; Food Court (~0.6km)
         </button>
       </div>
 
       {/* Origin / Dest Inputs */}
       <div className="flex flex-col gap-3">
-        <LocationInput label="From" placeholder="Enter city (e.g. Mumbai, Delhi, Bengaluru)" value={origin} onChange={setOrigin} />
-        <LocationInput label="To" placeholder="Enter destination (e.g. Pune, Jaipur, Mysuru)" value={destination} onChange={setDestination} />
+        <LocationInput label="From Campus Point" placeholder="e.g. Main Gate, Hostels, Faculty Block" value={origin} onChange={setOrigin} />
+        <LocationInput label="To Campus Destination" placeholder="e.g. Central Library, R&D Park, Food Court" value={destination} onChange={setDestination} />
       </div>
 
       {/* Vehicle select (from GET /api/vehicles) */}

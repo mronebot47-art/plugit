@@ -131,13 +131,13 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
 
     const initialCenter: [number, number] = origin
       ? [origin.lng, origin.lat]
-      : [78.6, 12.85];
+      : [77.567, 13.0184];
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: styleUrl,
       center: initialCenter,
-      zoom: 7.5,
+      zoom: 15.2,
       attributionControl: false,
     });
 

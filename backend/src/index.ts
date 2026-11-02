@@ -141,7 +141,15 @@ app.get('/api/vehicles', (c) => {
 
 // ── 3. GET /api/geocode (Live Nationwide Geocoding + Comprehensive Cache) ──
 const MAJOR_INDIAN_PLACES = [
-  // Metro Centers & Capitals
+  // In-Campus Landmarks & Charging Bays
+  { label: 'Campus Main Gate & Visitor Bay', lat: 13.021, lng: 77.571 },
+  { label: 'Central Library & Academic Complex', lat: 13.0195, lng: 77.5675 },
+  { label: 'R&D Innovation Park & Solar Canopy', lat: 13.015, lng: 77.562 },
+  { label: 'Engineering & Computing Labs Hub', lat: 13.016, lng: 77.564 },
+  { label: 'Student Hostel Enclave (Blocks A-D)', lat: 13.0135, lng: 77.568 },
+  { label: 'Campus Food Court & Cafeteria Plaza', lat: 13.018, lng: 77.5695 },
+  { label: 'Sports Arena & Student Activity Center', lat: 13.0225, lng: 77.565 },
+  { label: 'Faculty & Staff Housing Enclave', lat: 13.0175, lng: 77.566 },
   { label: 'Mumbai, CST, Maharashtra', lat: 18.9401, lng: 72.8347 },
   { label: 'Mumbai Airport (BOM), Mumbai, Maharashtra', lat: 19.0896, lng: 72.8656 },
   { label: 'Pune, Shivajinagar, Maharashtra', lat: 18.5308, lng: 73.8475 },
