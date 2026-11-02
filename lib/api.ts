@@ -35,6 +35,7 @@ export function getApiBaseUrl(): string {
         if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
           return `${window.location.protocol}//${hostname}:8000`;
         }
+        return window.location.origin;
       }
     } catch {}
   }

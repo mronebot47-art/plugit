@@ -306,8 +306,95 @@ app.post('/api/route', async (c) => {
   return c.json(genericRoute);
 });
 
-// Helper: Merge official stations with community chargers
+// In-memory cache for Open Charge Map live stations
+let ocmLiveStations: Station[] = [];
+let ocmLastFetched = 0;
+const OCM_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+async function fetchOcmIndiaStations(): Promise<Station[]> {
+  const apiKey = process.env.OCM_API_KEY || '1c38a50a-5c0e-425c-85af-52e3fb934136';
+  try {
+    const url = `https://api.openchargemap.io/v3/poi?output=json&countrycode=IN&maxresults=500&compact=true&verbose=false&key=${apiKey}`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'PlugIt-EV-Router/1.0' } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+
+    const normalized: Station[] = [];
+    for (const poi of data) {
+      if (!poi || !poi.AddressInfo) continue;
+      const lat = poi.AddressInfo.Latitude;
+      const lng = poi.AddressInfo.Longitude;
+      if (typeof lat !== 'number' || typeof lng !== 'number') continue;
+      if (lat < 6 || lat > 37 || lng < 68 || lng > 98) continue;
+
+      const connectors = (poi.Connections || []).map((conn: any) => {
+        let type = 'CCS2';
+        const connId = conn.ConnectionTypeID;
+        if (connId === 33) type = 'CCS2';
+        else if (connId === 25 || connId === 1036) type = 'Type2';
+        else if (connId === 2) type = 'CHAdeMO';
+        else if (connId === 0) type = 'Type2';
+        return {
+          type,
+          kw: typeof conn.PowerKW === 'number' && conn.PowerKW > 0 ? conn.PowerKW : 50,
+          qty: typeof conn.Quantity === 'number' && conn.Quantity > 0 ? conn.Quantity : 1,
+        };
+      });
+
+      if (connectors.length === 0) {
+        connectors.push({ type: 'CCS2', kw: 50, qty: 2 });
+      }
+
+      const maxKw = Math.max(...connectors.map((c: any) => c.kw), 25);
+      const title = poi.AddressInfo.Title || 'EV Fast Charger';
+      const operator = poi.OperatorInfo?.Title || title.split('-')[0]?.trim() || 'EV Charging Network';
+
+      normalized.push({
+        id: `ocm:${poi.ID}`,
+        name: title,
+        operator,
+        lat,
+        lng,
+        address: [poi.AddressInfo.AddressLine1, poi.AddressInfo.Town, poi.AddressInfo.StateOrProvince].filter(Boolean).join(', ') || 'India',
+        connectors,
+        maxKw,
+        status: 'working',
+        source: 'live',
+        probFree: 0.78,
+        availability: {
+          probFree: 0.78,
+          label: 'Estimated',
+          forecast12h: [0.8, 0.75, 0.65, 0.5, 0.6, 0.7, 0.8, 0.85, 0.8, 0.7, 0.6, 0.7],
+        },
+      });
+    }
+    return normalized;
+  } catch (err) {
+    console.warn('[OCM Live] Failed to fetch live stations:', err);
+    return [];
+  }
+}
+
+// Trigger initial background fetch of live OCM stations across India
+fetchOcmIndiaStations().then((live) => {
+  if (live.length > 0) {
+    ocmLiveStations = live;
+    ocmLastFetched = Date.now();
+    console.log(`[OCM Live] Cached ${live.length} stations across India.`);
+  }
+}).catch(() => {});
+
+// Helper: Merge official stations, live OCM stations, and community chargers
 async function getAllMergedStations(): Promise<Station[]> {
+  if (ocmLiveStations.length === 0 || Date.now() - ocmLastFetched > OCM_TTL_MS) {
+    const live = await fetchOcmIndiaStations();
+    if (live.length > 0) {
+      ocmLiveStations = live;
+      ocmLastFetched = Date.now();
+    }
+  }
+
   const activeCommunity = await store.getAllActiveChargers();
   const communityAsStations: Station[] = activeCommunity.map((c) => {
     const maxKw = Math.max(...c.connectors.map((con) => con.kw), 22);
@@ -332,7 +419,16 @@ async function getAllMergedStations(): Promise<Station[]> {
     };
   });
 
-  return [...STATIONS, ...communityAsStations];
+  const map = new Map<string, Station>();
+  for (const st of STATIONS) map.set(st.id, st);
+  for (const st of ocmLiveStations) {
+    if (!map.has(st.id)) map.set(st.id, st);
+  }
+  for (const st of communityAsStations) {
+    map.set(st.id, st);
+  }
+
+  return Array.from(map.values());
 }
 
 // ── 5. GET /api/stations ───────────────────────────────────────
