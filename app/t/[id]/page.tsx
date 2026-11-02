@@ -152,8 +152,8 @@ export default async function SharedTripPage({ params }: SharedTripPageProps) {
                 Projected Battery State of Charge Sawtooth
               </div>
               <BatteryRibbon
-                points={ribbonPoints}
-                chargeBars={(plan.ribbonSeries as any)?.chargeBars || []}
+                series={ribbonPoints}
+                stops={plan.stops}
                 totalKm={plan.totals.distanceKm}
               />
             </div>

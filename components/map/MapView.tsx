@@ -265,7 +265,8 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
       }
 
       // ── 2. Highway Route Layer ─────────────────────────────────────
-      if (!route || !route.geometry || !route.geometry.coordinates || route.geometry.coordinates.length < 2) {
+      const coordsArr = (route?.geometry?.coordinates as any) || [];
+      if (!route || !route.geometry || !coordsArr || coordsArr.length < 2) {
         if (map.getSource('route')) {
           if (map.getLayer('route-line-bg')) map.removeLayer('route-line-bg');
           if (map.getLayer('route-line')) map.removeLayer('route-line');

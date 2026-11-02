@@ -243,7 +243,7 @@ app.post('/api/plan/replan', async (c) => {
       [78.2144, 12.5266],
       [79.1325, 12.9165],
       [80.2785, 13.0334],
-    ],
+    ] as [number, number][],
   };
 
   const planResult = computePlan({
