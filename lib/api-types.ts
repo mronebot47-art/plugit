@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health check */
+        /** Health probe */
         get: {
             parameters: {
                 query?: never;
@@ -21,18 +21,13 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Service is healthy */
+                /** @description OK */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            /** @example ok */
-                            status: string;
-                            uptime: number;
-                            demoMode?: boolean;
-                        };
+                        "application/json": components["schemas"]["HealthResponse"];
                     };
                 };
             };
@@ -52,7 +47,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get supported EV vehicle profiles */
+        /** List supported EV models */
         get: {
             parameters: {
                 query?: never;
@@ -62,7 +57,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description List of EV vehicle presets */
+                /** @description List of vehicles */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -81,89 +76,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/geocode": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Geocode place name to coordinates */
-        get: {
-            parameters: {
-                query: {
-                    q: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Geocoded results */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["GeoPoint"][];
-                    };
-                };
-                400: components["responses"]["ApiErrorResponse"];
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/route": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get route geometry between origin and destination */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        origin: components["schemas"]["LatLng"];
-                        dest: components["schemas"]["LatLng"];
-                    };
-                };
-            };
-            responses: {
-                /** @description Route geometry and segments */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["RouteData"];
-                    };
-                };
-                400: components["responses"]["ApiErrorResponse"];
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/stations": {
         parameters: {
             query?: never;
@@ -171,14 +83,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get charging stations in radius or bbox */
+        /** List charging stations in bbox */
         get: {
             parameters: {
-                query?: {
-                    lat?: number;
-                    lng?: number;
-                    radiusKm?: number;
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -211,19 +119,17 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get stations within detour distance of route corridor */
+        /** Stations along corridor route */
         get: {
             parameters: {
-                query: {
-                    routeId: string;
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description Corridor stations */
+                /** @description Stations along corridor */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -242,6 +148,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/route": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Calculate highway route */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RouteRequest"];
+                };
+            };
+            responses: {
+                /** @description Route geometry */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RouteData"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plan": {
         parameters: {
             query?: never;
@@ -251,7 +197,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Compute optimal EV charging stops for route */
+        /** Calculate charging plan */
         post: {
             parameters: {
                 query?: never;
@@ -259,13 +205,13 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
                     "application/json": components["schemas"]["PlanRequest"];
                 };
             };
             responses: {
-                /** @description Plan alternatives and reachability */
+                /** @description Plan alternatives */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -274,8 +220,15 @@ export interface paths {
                         "application/json": components["schemas"]["PlanResponse"];
                     };
                 };
-                400: components["responses"]["ApiErrorResponse"];
-                422: components["responses"]["ApiErrorResponse"];
+                /** @description Unfeasible plan */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -293,7 +246,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Recompute route plan when a charging stop fails (Plan B) */
+        /** Recalculate plan bypassing failed stop */
         post: {
             parameters: {
                 query?: never;
@@ -301,40 +254,21 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
-                    "application/json": {
-                        routeId: string;
-                        vehicle: components["schemas"]["Vehicle"];
-                        /** @enum {string} */
-                        mode?: "cautious" | "normal" | "optimistic";
-                        currentDistanceKm: number;
-                        currentSoc: number;
-                        failedStationIds: string[];
-                        departAt?: string;
-                        previousStopIds?: string[];
-                    };
+                    "application/json": components["schemas"]["ReplanRequest"];
                 };
             };
             responses: {
-                /** @description Rerouted plan with Delta explanation */
+                /** @description Replan alternative with delta */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            alternatives: components["schemas"]["TripAlternative"][];
-                            delta: {
-                                message: string;
-                                addedMinutes: number;
-                                addedKm: number;
-                                reroutedStopName?: string;
-                            };
-                        };
+                        "application/json": components["schemas"]["ReplanResponse"];
                     };
                 };
-                422: components["responses"]["ApiErrorResponse"];
             };
         };
         delete?: never;
@@ -352,7 +286,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Find 3 nearest reachable stations in low-battery emergency */
+        /** Emergency nearby charging points */
         post: {
             parameters: {
                 query?: never;
@@ -360,31 +294,19 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
-                    "application/json": {
-                        lat: number;
-                        lng: number;
-                        currentSoc: number;
-                    };
+                    "application/json": components["schemas"]["SosRequest"];
                 };
             };
             responses: {
-                /** @description 3 nearest reachable stations */
+                /** @description SOS options */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            options: {
-                                station: components["schemas"]["Station"];
-                                distanceKm: number;
-                                etaMin: number;
-                                arrivalSoc: number;
-                                rationale: string;
-                            }[];
-                        };
+                        "application/json": components["schemas"]["SosResponse"];
                     };
                 };
             };
@@ -402,31 +324,29 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get latest reports for station ids */
+        /** Community reports and effective statuses */
         get: {
             parameters: {
-                query?: {
-                    stationIds?: string;
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description Community reports */
+                /** @description Reports list */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["CommunityReport"][];
+                        "application/json": components["schemas"]["ReportsQueryResponse"];
                     };
                 };
             };
         };
         put?: never;
-        /** Submit a station status report */
+        /** Submit community report */
         post: {
             parameters: {
                 query?: never;
@@ -434,71 +354,28 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
                     "application/json": {
                         stationId: string;
-                        /** @enum {string} */
-                        status: "working" | "queue" | "broken" | "blocked";
-                        queueMin?: number;
-                        deviceId: string;
+                        status: string;
+                        waitMinutes?: number;
+                        note?: string;
                     };
                 };
             };
             responses: {
-                /** @description Report accepted */
+                /** @description Report created */
                 201: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            success: boolean;
-                            report: components["schemas"]["CommunityReport"];
-                        };
-                    };
-                };
-                429: components["responses"]["ApiErrorResponse"];
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/reports/stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SSE Stream of real-time community reports */
-        get: {
-            parameters: {
-                query?: {
-                    stationIds?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description EventSource stream */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/event-stream": string;
+                        "application/json": components["schemas"]["CommunityReport"];
                     };
                 };
             };
         };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -514,7 +391,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Save a trip for sharing or live navigation */
+        /** Save trip */
         post: {
             parameters: {
                 query?: never;
@@ -522,21 +399,19 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
+            requestBody?: {
                 content: {
                     "application/json": components["schemas"]["SaveTripRequest"];
                 };
             };
             responses: {
-                /** @description Trip saved with id */
-                200: {
+                /** @description Trip saved */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            id: string;
-                        };
+                        "application/json": components["schemas"]["SaveTripResponse"];
                     };
                 };
             };
@@ -554,14 +429,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get saved trip details */
+        /** Get saved trip by 8-char id */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path: {
-                    id: string;
-                };
+                path?: never;
                 cookie?: never;
             };
             requestBody?: never;
@@ -575,11 +448,117 @@ export interface paths {
                         "application/json": components["schemas"]["TripDetails"];
                     };
                 };
-                404: components["responses"]["ApiErrorResponse"];
             };
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chargers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add public community charger */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateChargerRequest"];
+                };
+            };
+            responses: {
+                /** @description Charger submitted */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreateChargerResponse"];
+                    };
+                };
+                /** @description Duplicate nearby */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Rate limited */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/chargers/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm community charger worked/broken */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ConfirmChargerRequest"];
+                };
+            };
+            responses: {
+                /** @description Vote recorded */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ConfirmChargerResponse"];
+                    };
+                };
+                /** @description Owner cannot vote */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -592,35 +571,23 @@ export interface components {
     schemas: {
         ApiError: {
             error: {
-                /** @enum {string} */
-                code: "NO_FEASIBLE_PLAN" | "INVALID_REQUEST" | "RATE_LIMITED" | "NOT_FOUND" | "INTERNAL_ERROR";
+                code: string;
                 message: string;
-                details?: {
-                    longestGapKm?: number;
-                    vehicleRealRangeKm?: number;
-                    suggestion?: string;
-                };
-                requestId: string;
+                details?: unknown;
+                requestId?: string;
             };
         };
-        LatLng: {
-            lat: number;
-            lng: number;
-        };
-        GeoPoint: {
-            label: string;
-            lat: number;
-            lng: number;
-        };
-        Vehicle: {
-            id: string;
-            name: string;
-            usableKwh: number;
-            whPerKmHwy: number;
-            maxDcKw: number;
-            maxAcKw: number;
-            massKg: number;
-            connectors: string[];
+        HealthResponse: {
+            ok: boolean;
+            version: string;
+            uptimeSec: number;
+            demoMode: boolean;
+            /** @enum {string} */
+            store: "supabase" | "memory";
+            upstreams: {
+                osrm: string;
+                ocm: string;
+            };
         };
         Connector: {
             type: string;
@@ -637,30 +604,68 @@ export interface components {
             connectors: components["schemas"]["Connector"][];
             maxKw: number;
             /** @enum {string} */
-            status: "working" | "unknown" | "down";
-            source?: string;
-            lastVerified?: string;
-            availability?: {
-                probFree: number;
-                /** @enum {string} */
-                label: "Estimated" | "Reported 12 min ago" | "Operator data";
-                forecast12h: number[];
-            };
+            status: "working" | "down" | "unknown";
+            /** @enum {string} */
+            source: "live" | "cache" | "fixture" | "community";
+            /** @enum {string} */
+            communityStatus?: "unverified" | "confirmed";
+            probFree: number;
             distanceAlongRoute?: number;
             detourKm?: number;
+            detourMin?: number;
+            usageCost?: string;
+            lastReport?: string;
+            availability: {
+                probFree: number;
+                label: string;
+                forecast12h: number[];
+            };
+        };
+        Vehicle: {
+            id: string;
+            name: string;
+            usableKwh: number;
+            whPerKmHwy: number;
+            maxDcKw: number;
+            maxAcKw: number;
+            massKg: number;
+            connectors: string[];
+            approx?: boolean;
+        };
+        RouteRequest: {
+            origin: {
+                lat: number;
+                lng: number;
+                label?: string;
+            };
+            dest: {
+                lat: number;
+                lng: number;
+                label?: string;
+            };
         };
         RouteSegment: {
-            from: components["schemas"]["LatLng"];
-            to: components["schemas"]["LatLng"];
+            from: {
+                lat: number;
+                lng: number;
+            };
+            to: {
+                lat: number;
+                lng: number;
+            };
             km: number;
-            elevDeltaM?: number;
         };
         RouteData: {
             id: string;
-            geometry: Record<string, never>;
+            geometry: {
+                /** @enum {string} */
+                type: "LineString";
+                coordinates: number[][];
+            };
             distanceKm: number;
             durationMin: number;
             segments: components["schemas"]["RouteSegment"][];
+            degraded?: boolean;
         };
         PlanStop: {
             station: components["schemas"]["Station"];
@@ -671,12 +676,11 @@ export interface components {
             costInr: number;
             detourMinutes: number;
             reliabilityScore: number;
+            flag?: string;
         };
         RibbonPoint: {
             distanceKm: number;
             socPct: number;
-            /** @enum {string} */
-            type: "drive" | "charge";
         };
         TripAlternative: {
             /** @enum {string} */
@@ -696,65 +700,145 @@ export interface components {
             };
             ribbonSeries: {
                 points: components["schemas"]["RibbonPoint"][];
-                chargeBars?: Record<string, never>[];
+                chargeBars: unknown[];
             };
         };
         PlanRequest: {
             routeId?: string;
-            geometry?: Record<string, never>;
+            geometry?: unknown;
             vehicle?: components["schemas"]["Vehicle"];
             custom?: components["schemas"]["Vehicle"];
             startSoc: number;
-            targetArrivalSoc: number;
+            targetArrivalSoc?: number;
             /** @enum {string} */
-            mode: "cautious" | "normal" | "optimistic";
+            mode?: "cautious" | "normal" | "optimistic";
             departAt?: string;
+            includeUnverified?: boolean;
         };
         PlanResponse: {
             alternatives: components["schemas"]["TripAlternative"][];
-            reachabilityKm: number;
+        };
+        ReplanRequest: {
+            routeId?: string;
+            vehicle?: components["schemas"]["Vehicle"];
+            currentDistanceKm?: number;
+            currentSoc?: number;
+            failedStationIds?: string[];
+            /** @enum {string} */
+            mode?: "cautious" | "normal" | "optimistic";
+            includeUnverified?: boolean;
+        };
+        ReplanResponse: {
+            alternatives: components["schemas"]["TripAlternative"][];
+            delta: {
+                message: string;
+                addedMinutes: number;
+                addedKm: number;
+                reroutedStopName?: string;
+            };
+        };
+        SosRequest: {
+            lat: number;
+            lng: number;
+            currentSoc?: number;
+        };
+        SosOption: {
+            station: components["schemas"]["Station"];
+            distanceKm: number;
+            etaMin: number;
+            arrivalSoc: number;
+            rationale: string;
+        };
+        SosResponse: {
+            options: components["schemas"]["SosOption"][];
         };
         CommunityReport: {
             id: string;
             stationId: string;
             /** @enum {string} */
-            status: "working" | "queue" | "broken" | "blocked";
-            queueMin?: number;
-            deviceId: string;
+            status: "working" | "broken" | "degraded";
+            waitMinutes: number;
+            note?: string;
             createdAt: string;
-            weight: number;
+        };
+        ReportsQueryResponse: {
+            reports: components["schemas"]["CommunityReport"][];
+            effective: {
+                [key: string]: {
+                    status: string;
+                    probFree: number;
+                    waitMinutes: number;
+                };
+            };
         };
         SaveTripRequest: {
             routeId?: string;
-            originLabel: string;
-            destLabel: string;
+            originLabel?: string;
+            destLabel?: string;
             startSoc?: number;
             targetArrivalSoc?: number;
             mode?: string;
             selectedLabel?: string;
-            plan: components["schemas"]["TripAlternative"];
-            vehicle?: components["schemas"]["Vehicle"];
+            plan?: unknown;
+            vehicle?: unknown;
+        };
+        SaveTripResponse: {
+            id: string;
         };
         TripDetails: {
             id: string;
-            originLabel: string;
-            destLabel: string;
-            createdAt?: string;
-            plan: components["schemas"]["TripAlternative"];
-            vehicle?: components["schemas"]["Vehicle"];
+            routeId?: string;
+            originLabel?: string;
+            destLabel?: string;
+            startSoc?: number;
+            targetArrivalSoc?: number;
+            mode?: string;
+            selectedLabel?: string;
+            plan?: unknown;
+            vehicle?: unknown;
+            createdAt: string;
+        };
+        CreateChargerRequest: {
+            name: string;
+            lat: number;
+            lng: number;
+            address?: string;
+            connectors: {
+                type: string;
+                kw: number;
+                qty: number;
+            }[];
+            /** @enum {string} */
+            access: "public_free" | "public_paid";
+            priceNote?: string;
+            hours?: string;
+            /** @enum {boolean} */
+            publicConfirmed: true;
+            deviceId: string;
+        };
+        CreateChargerResponse: {
+            id: string;
+            /** @enum {string} */
+            status: "unverified";
+            editToken: string;
+        };
+        ConfirmChargerRequest: {
+            deviceId: string;
+            worked: boolean;
+        };
+        ConfirmChargerResponse: {
+            ok: boolean;
+            /** @enum {string} */
+            status: "unverified" | "confirmed" | "rejected";
+            worked: number;
+            notWorked: number;
+        };
+        AdminChargerUpdate: {
+            /** @enum {string} */
+            status: "confirmed" | "rejected" | "removed";
         };
     };
-    responses: {
-        /** @description Standardized API Error */
-        ApiErrorResponse: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["ApiError"];
-            };
-        };
-    };
+    responses: never;
     parameters: never;
     requestBodies: never;
     headers: never;

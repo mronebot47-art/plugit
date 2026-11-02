@@ -2,10 +2,10 @@
 
 <USER_REQUEST>
 # ROLE
-You are the frontend engineer for PlugIt (formerly WAYVOLT). The backend is a separate service and its contract is FROZEN. This is an INTEGRATION PASS: do not redesign anything and keep all design tokens, fonts, grain overlay, and the signature motion moments. Produce an implementation plan artifact first, then work in the steps below. After each step run the app in the browser agent, verify the acceptance check, fix failures, then continue. No TODOs, no placeholder numbers.
+You are the frontend engineer for PlugIt. The backend is a separate service and its contract is FROZEN. This is an INTEGRATION PASS: do not redesign anything and keep all design tokens, fonts, grain overlay, and the signature motion moments. Produce an implementation plan artifact first, then work in the steps below. After each step run the app in the browser agent, verify the acceptance check, fix failures, then continue. No TODOs, no placeholder numbers.
 
 # 1. RENAME
-WAYVOLT -> PlugIt everywhere: <title>, metadata, OG tags, README, package.json name, localStorage and sessionStorage keys, component copy, file headers. Tagline stays: "Know where you'll charge before you leave." Hero headline stays. Search the whole repo for "wayvolt" case-insensitively and show the grep result as empty when done.
+PlugIt everywhere: <title>, metadata, OG tags, README, package.json name, localStorage and sessionStorage keys, component copy, file headers. Tagline stays: "Know where you'll charge before you leave." Hero headline stays. Search the whole repo for old name case-insensitively and show the grep result as empty when done.
 
 # 2. API CLIENT (lib/api.ts rewrite)
 - BASE = process.env.NEXT_PUBLIC_API_URL (example http://localhost:8000, no trailing slash, no /api). Every call is `${BASE}/api/<path>`. Fail loudly at startup in dev if BASE is missing.
@@ -44,7 +44,7 @@ g) Demo mode switch (bottom-left, small): sets the Zustand flag and adds the X-P
 - Respect prefers-reduced-motion everywhere.
 
 # 7. ACCEPTANCE CHECKS (paste the evidence for each)
-1. grep for "wayvolt" returns nothing.
+1. grep for old name returns nothing.
 2. With the backend running, planning Bengaluru -> Chennai at 80% SoC shows API stops (1-2) and the Calm Index line is the backend's text. Change SoC to 40% and the stop count increases (2-3).
 3. Stop the backend: banner "Backend unreachable. Showing saved sample data." appears and nothing crashes. Start it again: the banner clears on the next request.
 4. Demo mode on: Network tab shows X-PlugIt-Demo: 1 on every request and responses work with the internet disabled.

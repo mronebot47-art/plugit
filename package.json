@@ -30,6 +30,7 @@
     "zustand": "^5.0.16"
   },
   "devDependencies": {
+    "@asteasolutions/zod-to-openapi": "^9.1.0",
     "@tailwindcss/turbopack": "^4",
     "@types/express": "^5.0.6",
     "@types/node": "^20.19.43",
@@ -37,6 +38,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

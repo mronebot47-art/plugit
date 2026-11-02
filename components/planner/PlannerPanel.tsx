@@ -44,6 +44,7 @@ export function PlannerPanel() {
   } = usePlannerStore();
 
   const [showCustom, setShowCustom] = useState(false);
+  const [includeUnverified, setIncludeUnverified] = useState(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -99,12 +100,13 @@ export function PlannerPanel() {
           startSoc: startSocPct,
           targetArrivalSoc: targetArrivalSocPct,
           mode,
+          includeUnverified,
           departAt: new Date().toISOString(),
         });
 
         if (planRes.data.alternatives && planRes.data.alternatives.length > 0) {
           setAlternatives(planRes.data.alternatives);
-          setReachabilityKm(planRes.data.reachabilityKm || 180);
+          setReachabilityKm((planRes.data as any).reachabilityKm || 180);
           setBackendUnreachable(false);
         }
       } catch (err: any) {
@@ -138,6 +140,7 @@ export function PlannerPanel() {
       startSocPct,
       targetArrivalSocPct,
       mode,
+      includeUnverified,
       setRoute,
       setAlternatives,
       setReachabilityKm,
@@ -310,6 +313,24 @@ export function PlannerPanel() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Community Chargers Planner Option */}
+      <div className="pt-2 border-t border-[var(--line)] flex flex-col gap-1">
+        <label className="flex items-center justify-between cursor-pointer select-none">
+          <span className="font-data text-[12px] text-[var(--ink)] font-medium">
+            Include unverified community chargers
+          </span>
+          <input
+            type="checkbox"
+            checked={includeUnverified}
+            onChange={(e) => setIncludeUnverified(e.target.checked)}
+            className="w-4 h-4 cursor-pointer accent-[var(--volt)]"
+          />
+        </label>
+        <p className="font-data text-[10px] text-[var(--muted)] leading-tight">
+          Default off. When enabled, allows stops at community chargers awaiting 2 driver votes (+10 min penalty).
+        </p>
       </div>
 
       {/* Skeleton Battery Loading State (Signature Moment G) */}

@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { Plus } from 'lucide-react';
 import { usePlannerStore } from '@/lib/store/planner';
 import { useTheme } from '@/components/ui/theme-provider';
 import { fetchStations, fetchSos } from '@/lib/api';
+import { AddChargerSheet } from '@/components/planner/AddChargerSheet';
 import type { Station } from '@/lib/types';
 
 // Configure MapLibre Web Worker URL
@@ -71,6 +73,8 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
   const [isDrivingPreview, setIsDrivingPreview] = useState(false);
   const [carProgressPct, setCarProgressPct] = useState(0);
   const [sosLoading, setSosLoading] = useState(false);
+  const [showAddCharger, setShowAddCharger] = useState(false);
+  const [showCommunityChargers, setShowCommunityChargers] = useState(true);
   const [sosOptions, setSosOptions] = useState<Array<{
     station: Station;
     distanceKm: number;
@@ -448,7 +452,11 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
     const plannedStopIds = new Set(activePlan?.stops.map((s) => s.station.id) ?? []);
     const hasActiveRoute = plannedStopIds.size > 0;
 
-    stations.forEach((station) => {
+    const visibleStations = showCommunityChargers
+      ? stations
+      : stations.filter((s) => s.source !== 'community');
+
+    visibleStations.forEach((station) => {
       const isPlannedStop = plannedStopIds.has(station.id);
       const isSelected = selectedStationId === station.id;
 
@@ -480,6 +488,20 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
         pin.style.boxShadow = '0 0 16px rgba(198, 255, 61, 0.95)';
         const stopIndex = activePlan?.stops.findIndex((s) => s.station.id === station.id) ?? 0;
         pin.innerText = String(stopIndex + 1);
+      } else if (station.source === 'community') {
+        // Community charger styling: dashed --muted for unverified, solid --ok for confirmed
+        if (station.communityStatus === 'unverified') {
+          pin.style.border = '2px dashed #8A8577';
+          pin.style.backgroundColor = 'transparent';
+          pin.style.boxShadow = '0 0 6px rgba(138, 133, 119, 0.4)';
+        } else {
+          pin.style.border = '2px solid #1F8A5B';
+          pin.style.backgroundColor = '#1F8A5B';
+          pin.style.boxShadow = '0 0 8px rgba(31, 138, 91, 0.5)';
+        }
+        if (hasActiveRoute) {
+          pin.style.opacity = '0.45';
+        }
       } else {
         const ringColor =
           station.status === 'working' ? '#1F8A5B' : station.status === 'down' ? '#FF5B2E' : '#8A8577';
@@ -509,7 +531,7 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
 
       markersRef.current[station.id] = marker;
     });
-  }, [stations, alternatives, activeAlt, selectedStationId, mapLoaded, onSelectStation]);
+  }, [stations, alternatives, activeAlt, selectedStationId, mapLoaded, onSelectStation, showCommunityChargers]);
 
   return (
     <div className="relative w-full h-full min-h-[400px]">
@@ -547,6 +569,29 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
           </div>
         )}
 
+        {/* Add a charger button (Lucide Plus 1.5 stroke) */}
+        <button
+          type="button"
+          onClick={() => setShowAddCharger(true)}
+          className="btn-volt py-1.5 px-3 text-[12px] flex items-center gap-1.5 shadow-md cursor-pointer"
+        >
+          <Plus size={14} strokeWidth={1.5} />
+          <span>Add a charger</span>
+        </button>
+
+        {/* Community chargers filter toggle */}
+        <button
+          type="button"
+          onClick={() => setShowCommunityChargers((prev) => !prev)}
+          className={`font-data text-[12px] px-2.5 py-1.5 rounded-[2px] border transition-colors flex items-center gap-1.5 cursor-pointer shadow-md ${
+            showCommunityChargers
+              ? 'bg-[var(--paper)] border-[var(--ink)] text-[var(--ink)] font-bold'
+              : 'bg-[var(--paper)] border-[var(--line)] text-[var(--muted)] line-through'
+          }`}
+        >
+          <span>Community ({stations.filter((s) => s.source === 'community').length})</span>
+        </button>
+
         {/* SOS Emergency Button */}
         <button
           type="button"
@@ -557,6 +602,23 @@ export function MapView({ onSelectStation, selectedStationId }: MapViewProps) {
           {sosLoading ? 'Scanning...' : 'Low Battery SOS'}
         </button>
       </div>
+
+      {/* Add Charger Bottom Sheet Modal */}
+      {showAddCharger && (
+        <AddChargerSheet
+          initialLat={mapInstance.current?.getCenter().lat || 12.9716}
+          initialLng={mapInstance.current?.getCenter().lng || 77.5946}
+          onClose={() => setShowAddCharger(false)}
+          onChargerAdded={async (created) => {
+            try {
+              const fresh = await fetchStations(12.9716, 77.5946, 100);
+              setStations(fresh);
+              const match = fresh.find((s: any) => s.id === created.id);
+              if (match) onSelectStation?.(match);
+            } catch {}
+          }}
+        />
+      )}
 
       {/* SOS Drawer Overlay */}
       {sosOptions && (

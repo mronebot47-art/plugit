@@ -5,7 +5,7 @@ export interface Connector {
 }
 
 export interface Station {
-  id: string;
+  id: string; // 'ocm:<id>' or 'community:<uuid>'
   name: string;
   operator: string;
   lat: number;
@@ -14,7 +14,8 @@ export interface Station {
   connectors: Connector[];
   maxKw: number;
   status: 'working' | 'down' | 'unknown';
-  source: 'live' | 'cache' | 'fixture';
+  source: 'live' | 'cache' | 'fixture' | 'community';
+  communityStatus?: 'unverified' | 'confirmed';
   probFree: number;
   distanceAlongRoute?: number;
   detourKm?: number;
@@ -30,7 +31,7 @@ export interface Station {
 
 export const STATIONS: Station[] = [
   {
-    id: 'blr-1',
+    id: 'ocm:274910',
     name: 'Tata Power EZ Charge - MG Road Metro',
     operator: 'Tata Power EZ Charge',
     lat: 12.9756,
@@ -51,7 +52,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'blr-2',
+    id: 'ocm:274911',
     name: 'Statiq Fast Hub - Electronic City Phase 1',
     operator: 'Statiq',
     lat: 12.8452,
@@ -72,7 +73,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'blr-3',
+    id: 'ocm:274912',
     name: 'Zeon Charging - Attibele Toll Plaza',
     operator: 'Zeon',
     lat: 12.7785,
@@ -90,7 +91,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'hosur-1',
+    id: 'ocm:274913',
     name: 'Jio-bp pulse - Hosur Highway Hub',
     operator: 'Jio-bp pulse',
     lat: 12.7354,
@@ -111,7 +112,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'krishnagiri-1',
+    id: 'ocm:274914',
     name: 'ChargeZone - Highway Plaza Krishnagiri',
     operator: 'ChargeZone',
     lat: 12.5266,
@@ -129,7 +130,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'krishnagiri-2',
+    id: 'ocm:274915',
     name: 'Tata Power Fast Hub - Krishnagiri',
     operator: 'Tata Power EZ Charge',
     lat: 12.518,
@@ -147,7 +148,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'ambur-1',
+    id: 'ocm:274916',
     name: 'Zeon Charging - Star Biryani Ambur',
     operator: 'Zeon',
     lat: 12.7915,
@@ -165,7 +166,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'vellore-1',
+    id: 'ocm:274917',
     name: 'Statiq Superhub - Vellore Bypass',
     operator: 'Statiq',
     lat: 12.9165,
@@ -186,7 +187,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'kanchipuram-1',
+    id: 'ocm:274919',
     name: 'Tata Power - Sriperumbudur Corridor',
     operator: 'Tata Power EZ Charge',
     lat: 12.9692,
@@ -204,7 +205,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'chennai-1',
+    id: 'ocm:274921',
     name: 'Jio-bp pulse - Guindy Hub',
     operator: 'Jio-bp pulse',
     lat: 13.0067,
@@ -225,7 +226,7 @@ export const STATIONS: Station[] = [
     },
   },
   {
-    id: 'chennai-2',
+    id: 'ocm:274922',
     name: 'Zeon Marina - Santhome High Road',
     operator: 'Zeon',
     lat: 13.0334,

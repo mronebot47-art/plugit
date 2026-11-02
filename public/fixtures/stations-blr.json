@@ -1,6 +1,6 @@
 [
   {
-    "id": "blr-1",
+    "id": "ocm:274910",
     "name": "Tata Power EZ Charge - MG Road Metro",
     "operator": "Tata Power EZ Charge",
     "lat": 12.9756,
@@ -16,7 +16,7 @@
     "probFree": 0.82
   },
   {
-    "id": "blr-2",
+    "id": "ocm:274911",
     "name": "Statiq Fast Hub - Electronic City Phase 1",
     "operator": "Statiq",
     "lat": 12.8452,
@@ -32,7 +32,7 @@
     "probFree": 0.65
   },
   {
-    "id": "blr-3",
+    "id": "ocm:274912",
     "name": "Zeon Charging - Attibele Toll Plaza",
     "operator": "Zeon",
     "lat": 12.7785,
@@ -47,7 +47,7 @@
     "probFree": 0.74
   },
   {
-    "id": "hosur-1",
+    "id": "ocm:274913",
     "name": "Jio-bp pulse - Hosur Highway Hub",
     "operator": "Jio-bp pulse",
     "lat": 12.7354,
@@ -63,7 +63,7 @@
     "probFree": 0.58
   },
   {
-    "id": "krishnagiri-1",
+    "id": "ocm:274914",
     "name": "ChargeZone - Highway Plaza Krishnagiri",
     "operator": "ChargeZone",
     "lat": 12.5266,
@@ -75,14 +75,14 @@
     "maxKw": 60,
     "status": "working",
     "source": "fixture",
-    "probFree": 0.70
+    "probFree": 0.7
   },
   {
-    "id": "krishnagiri-2",
+    "id": "ocm:274915",
     "name": "Tata Power Fast Hub - Krishnagiri",
     "operator": "Tata Power EZ Charge",
-    "lat": 12.5180,
-    "lng": 78.2250,
+    "lat": 12.518,
+    "lng": 78.225,
     "address": "Hotel Saravana Bhavan Complex, NH 44, Krishnagiri",
     "connectors": [
       { "type": "CCS2", "kw": 30, "qty": 2 }
@@ -93,7 +93,7 @@
     "probFree": 0.45
   },
   {
-    "id": "ambur-1",
+    "id": "ocm:274916",
     "name": "Zeon Charging - Star Biryani Ambur",
     "operator": "Zeon",
     "lat": 12.7915,
@@ -108,7 +108,7 @@
     "probFree": 0.62
   },
   {
-    "id": "vellore-1",
+    "id": "ocm:274917",
     "name": "Statiq Superhub - Vellore Bypass",
     "operator": "Statiq",
     "lat": 12.9165,
@@ -124,7 +124,7 @@
     "probFree": 0.78
   },
   {
-    "id": "kanchipuram-1",
+    "id": "ocm:274919",
     "name": "Tata Power - Sriperumbudur Corridor",
     "operator": "Tata Power EZ Charge",
     "lat": 12.9692,
@@ -139,7 +139,7 @@
     "probFree": 0.55
   },
   {
-    "id": "chennai-1",
+    "id": "ocm:274921",
     "name": "Jio-bp pulse - Guindy Hub",
     "operator": "Jio-bp pulse",
     "lat": 13.0067,
@@ -155,7 +155,7 @@
     "probFree": 0.85
   },
   {
-    "id": "chennai-2",
+    "id": "ocm:274922",
     "name": "Zeon Marina - Santhome High Road",
     "operator": "Zeon",
     "lat": 13.0334,
@@ -167,6 +167,6 @@
     "maxKw": 50,
     "status": "working",
     "source": "fixture",
-    "probFree": 0.90
+    "probFree": 0.9
   }
 ]

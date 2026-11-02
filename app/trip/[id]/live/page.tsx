@@ -98,7 +98,7 @@ export default function LiveTripPage() {
       selectedVehicleId === 'custom'
         ? customVehicle
         : vehicles.find((v) => v.id === selectedVehicleId) || vehicles[0]!;
-    const failedStationId = activePlan?.stops?.[0]?.station?.id || 'krishnagiri-1';
+    const failedStationId = activePlan?.stops?.[0]?.station?.id || 'ocm:274914';
 
     try {
       const res = await fetchReplan({

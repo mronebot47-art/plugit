@@ -52,7 +52,11 @@ async function runContractChecks() {
   }
 
   // 1. GET /api/health
-  await check('Health probe', '/api/health', { method: 'GET' });
+  const health = await check('Health probe', '/api/health', { method: 'GET' });
+  if (!health.ok || typeof health.uptimeSec !== 'number') {
+    console.error('FAIL: Health response shape mismatch');
+    process.exit(1);
+  }
 
   // 2. GET /api/vehicles
   const vehicles = await check('Vehicles list', '/api/vehicles', { method: 'GET' });
@@ -64,14 +68,18 @@ async function runContractChecks() {
   // 3. GET /api/geocode
   await check('Geocode autocomplete', '/api/geocode?q=Bengaluru', { method: 'GET' });
 
-  // 4. POST /api/route
-  const route = await check('Route calculation', '/api/route', {
+  // 4. POST /api/route (Bengaluru -> Mysuru: ~143 km)
+  const route = await check('Route calculation (BLR -> Mysuru)', '/api/route', {
     method: 'POST',
     body: JSON.stringify({
       origin: { lat: 12.9756, lng: 77.6097, label: 'Bengaluru' },
-      dest: { lat: 13.0334, lng: 80.2785, label: 'Chennai' },
+      dest: { lat: 12.2958, lng: 76.6394, label: 'Mysuru' },
     }),
   });
+  if (route.distanceKm < 130 || route.distanceKm > 165) {
+    console.error(`FAIL: Bengaluru -> Mysuru route distance unexpected: ${route.distanceKm} km (expected 140-150 km)`);
+    process.exit(1);
+  }
 
   // 5. GET /api/stations/corridor
   await check('Corridor stations', `/api/stations/corridor?routeId=blr-chennai`, { method: 'GET' });
@@ -81,7 +89,6 @@ async function runContractChecks() {
     method: 'POST',
     body: JSON.stringify({
       routeId: 'blr-chennai',
-      geometry: route.geometry,
       vehicle: vehicles[0],
       startSoc: 80,
       targetArrivalSoc: 15,
@@ -97,7 +104,6 @@ async function runContractChecks() {
       method: 'POST',
       body: JSON.stringify({
         routeId: 'blr-chennai',
-        geometry: route.geometry,
         vehicle: vehicles[0],
         startSoc: 8,
         targetArrivalSoc: 15,
@@ -115,7 +121,7 @@ async function runContractChecks() {
       vehicle: vehicles[0],
       currentDistanceKm: 105,
       currentSoc: 24,
-      failedStationIds: ['krishnagiri-1'],
+      failedStationIds: ['ocm:274914'],
     }),
   });
 
@@ -136,7 +142,7 @@ async function runContractChecks() {
     {
       method: 'POST',
       body: JSON.stringify({
-        stationId: 'krishnagiri-1',
+        stationId: 'ocm:274914',
         status: 'working',
         waitMinutes: 5,
         note: 'Smooth charging at 60kW DC',
@@ -145,7 +151,18 @@ async function runContractChecks() {
     201
   );
 
-  // 11. POST /api/trips
+  // 11. GET /api/reports?stationIds=...
+  const reportsData = await check(
+    'Query community reports',
+    '/api/reports?stationIds=ocm:274914,ocm:274910',
+    { method: 'GET' }
+  );
+  if (!reportsData.reports || !reportsData.effective) {
+    console.error('FAIL: /api/reports must return { reports, effective }');
+    process.exit(1);
+  }
+
+  // 12. POST /api/trips (8-character id check)
   const savedTrip = await check('Save trip', '/api/trips', {
     method: 'POST',
     body: JSON.stringify({
@@ -159,16 +176,66 @@ async function runContractChecks() {
       plan: plan.alternatives[0],
       vehicle: vehicles[0],
     }),
-  });
+  }, 201);
 
-  // 12. GET /api/trips/:id
+  if (!savedTrip.id || savedTrip.id.length !== 8) {
+    console.error(`FAIL: Saved trip id must be exactly 8 characters: ${savedTrip.id}`);
+    process.exit(1);
+  }
+
+  // 13. GET /api/trips/:id
   await check('Retrieve trip', `/api/trips/${savedTrip.id}`, { method: 'GET' });
 
+  // 14. TASK B: POST /api/chargers (Add a charger)
+  const testDevId = 'test-dev-' + Math.random().toString(36).slice(2, 12);
+  const randomLat = Number((12.60 + Math.random() * 0.35).toFixed(4));
+  const randomLng = Number((78.05 + Math.random() * 0.35).toFixed(4));
+  const createdCharger = await check(
+    'Add community charger',
+    '/api/chargers',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'NH44 Highway Cafe Fast Charger',
+        lat: randomLat,
+        lng: randomLng,
+        address: 'Near Shoolagiri Bypass, NH 44, Tamil Nadu',
+        connectors: [{ type: 'CCS2', kw: 60, qty: 2 }],
+        access: 'public_paid',
+        priceNote: 'Rs 19/kWh',
+        hours: '24/7',
+        publicConfirmed: true,
+        deviceId: testDevId,
+      }),
+    },
+    201
+  );
+
+  if (!createdCharger.id || !createdCharger.editToken || createdCharger.status !== 'unverified') {
+    console.error('FAIL: /api/chargers response invalid', createdCharger);
+    process.exit(1);
+  }
+
+  // 15. TASK B: POST /api/chargers/:id/confirm (Confirmation vote)
+  const voterDevId = 'voter-dev-' + Math.random().toString(36).slice(2, 12);
+  await check(
+    'Confirm community charger',
+    `/api/chargers/${createdCharger.id}/confirm`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        deviceId: voterDevId,
+        worked: true,
+      }),
+    },
+    200
+  );
+
   // Print Summary Table
-  console.log('| Endpoint                                    | Status  | Time    | X-PlugIt-Source |');
-  console.log('|---------------------------------------------|---------|---------|-----------------|');
+  console.log('| Endpoint                                          | Status  | Time    | X-PlugIt-Source |');
+  console.log('|---------------------------------------------------|---------|---------|-----------------|');
   results.forEach((r) => {
-    const endp = r.endpoint.padEnd(43, ' ');
+    const endp = r.endpoint.padEnd(49, ' ');
     const stat = `${r.status} ✓`.padEnd(7, ' ');
     const time = `${r.ms}ms`.padEnd(7, ' ');
     const src = r.plugItSource.padEnd(15, ' ');

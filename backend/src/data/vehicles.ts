@@ -1,4 +1,4 @@
-// approximate, verify against manufacturer specs before the pitch
+// vehicle presets with approx flag
 export interface Vehicle {
   id: string;
   name: string;
@@ -8,6 +8,7 @@ export interface Vehicle {
   maxAcKw: number;
   massKg: number;
   connectors: string[];
+  approx?: boolean;
 }
 
 export const VEHICLES: Vehicle[] = [
@@ -20,6 +21,7 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 7.2,
     massKg: 1615,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
   {
     id: 'punch-lr',
@@ -30,6 +32,7 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 7.2,
     massKg: 1365,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
   {
     id: 'mg-zs',
@@ -40,6 +43,7 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 11,
     massKg: 1700,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
   {
     id: 'mg-windsor',
@@ -50,6 +54,7 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 7.2,
     massKg: 1650,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
   {
     id: 'xuv400',
@@ -60,6 +65,7 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 7.2,
     massKg: 1630,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
   {
     id: 'ioniq5',
@@ -70,6 +76,7 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 11,
     massKg: 1995,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
   {
     id: 'byd-atto3',
@@ -80,5 +87,6 @@ export const VEHICLES: Vehicle[] = [
     maxAcKw: 11,
     massKg: 1750,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
 ];

@@ -239,3 +239,47 @@ export async function fetchTrip(id: string): Promise<any> {
   const res = await apiFetch<any>(`/api/trips/${id}`);
   return res.data;
 }
+
+export async function fetchAddCharger(data: {
+  name: string;
+  lat: number;
+  lng: number;
+  address?: string;
+  connectors: Array<{ type: string; kw: number; qty: number }>;
+  access: 'public_free' | 'public_paid';
+  priceNote?: string;
+  hours?: string;
+  publicConfirmed: boolean;
+  deviceId: string;
+}): Promise<{ id: string; status: 'unverified'; editToken: string }> {
+  const res = await apiFetch<{ id: string; status: 'unverified'; editToken: string }>('/api/chargers', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return res.data;
+}
+
+export async function fetchConfirmCharger(
+  chargerId: string,
+  deviceId: string,
+  worked: boolean
+): Promise<{ ok: boolean; status: string; worked: number; notWorked: number }> {
+  const res = await apiFetch<{ ok: boolean; status: string; worked: number; notWorked: number }>(
+    `/api/chargers/${encodeURIComponent(chargerId)}/confirm`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ deviceId, worked }),
+    }
+  );
+  return res.data;
+}
+
+export async function fetchDeleteCharger(chargerId: string, editToken: string): Promise<{ ok: boolean }> {
+  const res = await apiFetch<{ ok: boolean }>(`/api/chargers/${encodeURIComponent(chargerId)}`, {
+    method: 'DELETE',
+    headers: {
+      'X-Edit-Token': editToken,
+    },
+  });
+  return res.data;
+}

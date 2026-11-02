@@ -23,14 +23,15 @@ export function segmentWh(
 
   // Grade energy (only for climbs; regen covers 55% of descents)
   let gradeWh = 0;
-  if (seg.elevDeltaM !== undefined) {
+  const elevDeltaM = (seg as any).elevDeltaM;
+  if (elevDeltaM !== undefined) {
     const efficiency = 0.90; // drivetrain efficiency
-    if (seg.elevDeltaM > 0) {
+    if (elevDeltaM > 0) {
       // Climbing
-      gradeWh = (vehicle.massKg * 9.81 * seg.elevDeltaM) / 3600 / efficiency;
+      gradeWh = (vehicle.massKg * 9.81 * elevDeltaM) / 3600 / efficiency;
     } else {
       // Descending — recover 55%
-      gradeWh = (vehicle.massKg * 9.81 * seg.elevDeltaM) / 3600 / efficiency * 0.55;
+      gradeWh = (vehicle.massKg * 9.81 * elevDeltaM) / 3600 / efficiency * 0.55;
     }
   }
 

@@ -51,7 +51,7 @@ export default function StationsPage() {
             Directory &middot; Bengaluru Corridor
           </span>
           <h1 className="font-display font-black text-[32px] md:text-[44px] tracking-tight leading-none">
-            Verified Charging Stations
+            Highway Charging Stations
           </h1>
           <p className="text-[14px] md:text-[16px] text-[var(--muted)] mt-2">
             Real station operators across Indian highway corridors with estimated availability and power output.

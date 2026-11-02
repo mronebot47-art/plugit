@@ -2,11 +2,9 @@ import type { VehicleProfile } from '@/lib/types';
 
 /**
  * Single source of truth for EV vehicle profiles.
- * Code comment above each preset as required:
- * approximate, verify against manufacturer specs before the pitch
+ * Presets are labelled approx: true.
  */
 export const VEHICLES: VehicleProfile[] = [
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'nexon-lr',
     name: 'Tata Nexon EV LR',
@@ -16,8 +14,8 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 7.2,
     massKg: 1615,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'punch-lr',
     name: 'Tata Punch EV LR',
@@ -27,8 +25,8 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 7.2,
     massKg: 1365,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'mg-zs',
     name: 'MG ZS EV',
@@ -38,8 +36,8 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 11,
     massKg: 1700,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'mg-windsor',
     name: 'MG Windsor EV',
@@ -49,8 +47,8 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 7.2,
     massKg: 1650,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'xuv400',
     name: 'Mahindra XUV400',
@@ -60,8 +58,8 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 7.2,
     massKg: 1630,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'ioniq5',
     name: 'Hyundai Ioniq 5',
@@ -71,8 +69,8 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 11,
     massKg: 1995,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
-  // approximate, verify against manufacturer specs before the pitch
   {
     id: 'byd-atto3',
     name: 'BYD Atto 3',
@@ -82,5 +80,6 @@ export const VEHICLES: VehicleProfile[] = [
     maxAcKw: 11,
     massKg: 1750,
     connectors: ['CCS2', 'Type2'],
+    approx: true,
   },
 ];

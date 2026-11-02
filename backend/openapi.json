@@ -1,30 +1,1089 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.0.0",
   "info": {
-    "title": "PlugIt EV Trip Planner API",
-    "version": "1.0.0",
-    "description": "Know where you'll charge before you leave. EV route planning API for Indian highway corridors."
+    "title": "PlugIt Highway EV API",
+    "version": "0.1.0",
+    "description": "Frozen API contract for PlugIt India EV Highway charging platform"
   },
   "servers": [
-    { "url": "http://localhost:8000" }
+    {
+      "url": "http://localhost:8000"
+    }
   ],
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "nullable": true
+              },
+              "requestId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "string"
+          },
+          "uptimeSec": {
+            "type": "number"
+          },
+          "demoMode": {
+            "type": "boolean"
+          },
+          "store": {
+            "type": "string",
+            "enum": [
+              "supabase",
+              "memory"
+            ]
+          },
+          "upstreams": {
+            "type": "object",
+            "properties": {
+              "osrm": {
+                "type": "string"
+              },
+              "ocm": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "osrm",
+              "ocm"
+            ]
+          }
+        },
+        "required": [
+          "ok",
+          "version",
+          "uptimeSec",
+          "demoMode",
+          "store",
+          "upstreams"
+        ]
+      },
+      "Connector": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "kw": {
+            "type": "number"
+          },
+          "qty": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "kw",
+          "qty"
+        ]
+      },
+      "Station": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "address": {
+            "type": "string"
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Connector"
+            }
+          },
+          "maxKw": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "working",
+              "down",
+              "unknown"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "cache",
+              "fixture",
+              "community"
+            ]
+          },
+          "communityStatus": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "confirmed"
+            ]
+          },
+          "probFree": {
+            "type": "number"
+          },
+          "distanceAlongRoute": {
+            "type": "number"
+          },
+          "detourKm": {
+            "type": "number"
+          },
+          "detourMin": {
+            "type": "number"
+          },
+          "usageCost": {
+            "type": "string"
+          },
+          "lastReport": {
+            "type": "string"
+          },
+          "availability": {
+            "type": "object",
+            "properties": {
+              "probFree": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              },
+              "forecast12h": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "probFree",
+              "label",
+              "forecast12h"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "operator",
+          "lat",
+          "lng",
+          "address",
+          "connectors",
+          "maxKw",
+          "status",
+          "source",
+          "probFree",
+          "availability"
+        ]
+      },
+      "Vehicle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "usableKwh": {
+            "type": "number"
+          },
+          "whPerKmHwy": {
+            "type": "number"
+          },
+          "maxDcKw": {
+            "type": "number"
+          },
+          "maxAcKw": {
+            "type": "number"
+          },
+          "massKg": {
+            "type": "number"
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "approx": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "usableKwh",
+          "whPerKmHwy",
+          "maxDcKw",
+          "maxAcKw",
+          "massKg",
+          "connectors"
+        ]
+      },
+      "RouteRequest": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lat",
+              "lng"
+            ]
+          },
+          "dest": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lat",
+              "lng"
+            ]
+          }
+        },
+        "required": [
+          "origin",
+          "dest"
+        ]
+      },
+      "RouteSegment": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "lat",
+              "lng"
+            ]
+          },
+          "to": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "lat",
+              "lng"
+            ]
+          },
+          "km": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "km"
+        ]
+      },
+      "RouteData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "geometry": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "LineString"
+                ]
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              }
+            },
+            "required": [
+              "type",
+              "coordinates"
+            ]
+          },
+          "distanceKm": {
+            "type": "number"
+          },
+          "durationMin": {
+            "type": "number"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteSegment"
+            }
+          },
+          "degraded": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "geometry",
+          "distanceKm",
+          "durationMin",
+          "segments"
+        ]
+      },
+      "PlanStop": {
+        "type": "object",
+        "properties": {
+          "station": {
+            "$ref": "#/components/schemas/Station"
+          },
+          "arrivalSocPct": {
+            "type": "number"
+          },
+          "departureSocPct": {
+            "type": "number"
+          },
+          "chargeMinutes": {
+            "type": "number"
+          },
+          "chargeKwh": {
+            "type": "number"
+          },
+          "costInr": {
+            "type": "number"
+          },
+          "detourMinutes": {
+            "type": "number"
+          },
+          "reliabilityScore": {
+            "type": "number"
+          },
+          "flag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "station",
+          "arrivalSocPct",
+          "departureSocPct",
+          "chargeMinutes",
+          "chargeKwh",
+          "costInr",
+          "detourMinutes",
+          "reliabilityScore"
+        ]
+      },
+      "RibbonPoint": {
+        "type": "object",
+        "properties": {
+          "distanceKm": {
+            "type": "number"
+          },
+          "socPct": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "distanceKm",
+          "socPct"
+        ]
+      },
+      "TripAlternative": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "enum": [
+              "Fastest",
+              "Safest"
+            ]
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanStop"
+            }
+          },
+          "totals": {
+            "type": "object",
+            "properties": {
+              "distanceKm": {
+                "type": "number"
+              },
+              "driveMinutes": {
+                "type": "number"
+              },
+              "chargeMinutes": {
+                "type": "number"
+              },
+              "totalMinutes": {
+                "type": "number"
+              },
+              "costInr": {
+                "type": "number"
+              },
+              "arrivalSocPct": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "distanceKm",
+              "driveMinutes",
+              "chargeMinutes",
+              "totalMinutes",
+              "costInr",
+              "arrivalSocPct"
+            ]
+          },
+          "calmIndex": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "number"
+              },
+              "line": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "score",
+              "line"
+            ]
+          },
+          "ribbonSeries": {
+            "type": "object",
+            "properties": {
+              "points": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RibbonPoint"
+                }
+              },
+              "chargeBars": {
+                "type": "array",
+                "items": {
+                  "nullable": true
+                }
+              }
+            },
+            "required": [
+              "points",
+              "chargeBars"
+            ]
+          }
+        },
+        "required": [
+          "label",
+          "stops",
+          "totals",
+          "calmIndex",
+          "ribbonSeries"
+        ]
+      },
+      "PlanRequest": {
+        "type": "object",
+        "properties": {
+          "routeId": {
+            "type": "string"
+          },
+          "geometry": {
+            "nullable": true
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          "custom": {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          "startSoc": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 100
+          },
+          "targetArrivalSoc": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 100
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cautious",
+              "normal",
+              "optimistic"
+            ]
+          },
+          "departAt": {
+            "type": "string"
+          },
+          "includeUnverified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "startSoc"
+        ]
+      },
+      "PlanResponse": {
+        "type": "object",
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripAlternative"
+            }
+          }
+        },
+        "required": [
+          "alternatives"
+        ]
+      },
+      "ReplanRequest": {
+        "type": "object",
+        "properties": {
+          "routeId": {
+            "type": "string"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          "currentDistanceKm": {
+            "type": "number"
+          },
+          "currentSoc": {
+            "type": "number"
+          },
+          "failedStationIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cautious",
+              "normal",
+              "optimistic"
+            ]
+          },
+          "includeUnverified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ReplanResponse": {
+        "type": "object",
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripAlternative"
+            }
+          },
+          "delta": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "addedMinutes": {
+                "type": "number"
+              },
+              "addedKm": {
+                "type": "number"
+              },
+              "reroutedStopName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message",
+              "addedMinutes",
+              "addedKm"
+            ]
+          }
+        },
+        "required": [
+          "alternatives",
+          "delta"
+        ]
+      },
+      "SosRequest": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "currentSoc": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "SosOption": {
+        "type": "object",
+        "properties": {
+          "station": {
+            "$ref": "#/components/schemas/Station"
+          },
+          "distanceKm": {
+            "type": "number"
+          },
+          "etaMin": {
+            "type": "number"
+          },
+          "arrivalSoc": {
+            "type": "number"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "station",
+          "distanceKm",
+          "etaMin",
+          "arrivalSoc",
+          "rationale"
+        ]
+      },
+      "SosResponse": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SosOption"
+            }
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "CommunityReport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "stationId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "working",
+              "broken",
+              "degraded"
+            ]
+          },
+          "waitMinutes": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "stationId",
+          "status",
+          "waitMinutes",
+          "createdAt"
+        ]
+      },
+      "ReportsQueryResponse": {
+        "type": "object",
+        "properties": {
+          "reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommunityReport"
+            }
+          },
+          "effective": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "probFree": {
+                  "type": "number"
+                },
+                "waitMinutes": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "probFree",
+                "waitMinutes"
+              ]
+            }
+          }
+        },
+        "required": [
+          "reports",
+          "effective"
+        ]
+      },
+      "SaveTripRequest": {
+        "type": "object",
+        "properties": {
+          "routeId": {
+            "type": "string"
+          },
+          "originLabel": {
+            "type": "string"
+          },
+          "destLabel": {
+            "type": "string"
+          },
+          "startSoc": {
+            "type": "number"
+          },
+          "targetArrivalSoc": {
+            "type": "number"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "selectedLabel": {
+            "type": "string"
+          },
+          "plan": {
+            "nullable": true
+          },
+          "vehicle": {
+            "nullable": true
+          }
+        }
+      },
+      "SaveTripResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "TripDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "routeId": {
+            "type": "string"
+          },
+          "originLabel": {
+            "type": "string"
+          },
+          "destLabel": {
+            "type": "string"
+          },
+          "startSoc": {
+            "type": "number"
+          },
+          "targetArrivalSoc": {
+            "type": "number"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "selectedLabel": {
+            "type": "string"
+          },
+          "plan": {
+            "nullable": true
+          },
+          "vehicle": {
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt"
+        ]
+      },
+      "CreateChargerRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 80
+          },
+          "lat": {
+            "type": "number",
+            "minimum": 6,
+            "maximum": 37
+          },
+          "lng": {
+            "type": "number",
+            "minimum": 68,
+            "maximum": 98
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "kw": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 350
+                },
+                "qty": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                }
+              },
+              "required": [
+                "type",
+                "kw",
+                "qty"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 6
+          },
+          "access": {
+            "type": "string",
+            "enum": [
+              "public_free",
+              "public_paid"
+            ]
+          },
+          "priceNote": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "hours": {
+            "type": "string",
+            "maxLength": 60
+          },
+          "publicConfirmed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "deviceId": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "name",
+          "lat",
+          "lng",
+          "connectors",
+          "access",
+          "publicConfirmed",
+          "deviceId"
+        ]
+      },
+      "CreateChargerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unverified"
+            ]
+          },
+          "editToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "editToken"
+        ]
+      },
+      "ConfirmChargerRequest": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 64
+          },
+          "worked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "deviceId",
+          "worked"
+        ]
+      },
+      "ConfirmChargerResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "worked": {
+            "type": "number"
+          },
+          "notWorked": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ok",
+          "status",
+          "worked",
+          "notWorked"
+        ]
+      },
+      "AdminChargerUpdate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "rejected",
+              "removed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      }
+    },
+    "parameters": {}
+  },
   "paths": {
     "/api/health": {
       "get": {
-        "summary": "Health check",
+        "summary": "Health probe",
         "responses": {
           "200": {
-            "description": "Service is healthy",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "string", "example": "ok" },
-                    "uptime": { "type": "number" },
-                    "demoMode": { "type": "boolean" }
-                  },
-                  "required": ["status", "uptime"]
+                  "$ref": "#/components/schemas/HealthResponse"
                 }
               }
             }
@@ -34,83 +1093,27 @@
     },
     "/api/vehicles": {
       "get": {
-        "summary": "Get supported EV vehicle profiles",
+        "summary": "List supported EV models",
         "responses": {
           "200": {
-            "description": "List of EV vehicle presets",
+            "description": "List of vehicles",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/Vehicle" }
+                  "items": {
+                    "$ref": "#/components/schemas/Vehicle"
+                  }
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/api/geocode": {
-      "get": {
-        "summary": "Geocode place name to coordinates",
-        "parameters": [
-          { "name": "q", "in": "query", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Geocoded results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/GeoPoint" }
-                }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ApiErrorResponse" }
-        }
-      }
-    },
-    "/api/route": {
-      "post": {
-        "summary": "Get route geometry between origin and destination",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "origin": { "$ref": "#/components/schemas/LatLng" },
-                  "dest": { "$ref": "#/components/schemas/LatLng" }
-                },
-                "required": ["origin", "dest"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Route geometry and segments",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/RouteData" }
-              }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ApiErrorResponse" }
         }
       }
     },
     "/api/stations": {
       "get": {
-        "summary": "Get charging stations in radius or bbox",
-        "parameters": [
-          { "name": "lat", "in": "query", "schema": { "type": "number" } },
-          { "name": "lng", "in": "query", "schema": { "type": "number" } },
-          { "name": "radiusKm", "in": "query", "schema": { "type": "number", "default": 50 } }
-        ],
+        "summary": "List charging stations in bbox",
         "responses": {
           "200": {
             "description": "List of stations",
@@ -118,7 +1121,9 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/Station" }
+                  "items": {
+                    "$ref": "#/components/schemas/Station"
+                  }
                 }
               }
             }
@@ -128,18 +1133,43 @@
     },
     "/api/stations/corridor": {
       "get": {
-        "summary": "Get stations within detour distance of route corridor",
-        "parameters": [
-          { "name": "routeId", "in": "query", "required": true, "schema": { "type": "string" } }
-        ],
+        "summary": "Stations along corridor route",
         "responses": {
           "200": {
-            "description": "Corridor stations",
+            "description": "Stations along corridor",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/Station" }
+                  "items": {
+                    "$ref": "#/components/schemas/Station"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/route": {
+      "post": {
+        "summary": "Calculate highway route",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Route geometry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteData"
                 }
               }
             }
@@ -149,128 +1179,85 @@
     },
     "/api/plan": {
       "post": {
-        "summary": "Compute optimal EV charging stops for route",
+        "summary": "Calculate charging plan",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/PlanRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Plan alternatives and reachability",
+            "description": "Plan alternatives",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/PlanResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/PlanResponse"
+                }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/ApiErrorResponse" },
-          "422": { "$ref": "#/components/responses/ApiErrorResponse" }
+          "422": {
+            "description": "Unfeasible plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
         }
       }
     },
     "/api/plan/replan": {
       "post": {
-        "summary": "Recompute route plan when a charging stop fails (Plan B)",
+        "summary": "Recalculate plan bypassing failed stop",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "routeId": { "type": "string" },
-                  "vehicle": { "$ref": "#/components/schemas/Vehicle" },
-                  "mode": { "type": "string", "enum": ["cautious", "normal", "optimistic"] },
-                  "currentDistanceKm": { "type": "number" },
-                  "currentSoc": { "type": "number" },
-                  "failedStationIds": { "type": "array", "items": { "type": "string" } },
-                  "departAt": { "type": "string" },
-                  "previousStopIds": { "type": "array", "items": { "type": "string" } }
-                },
-                "required": ["routeId", "vehicle", "currentDistanceKm", "currentSoc", "failedStationIds"]
+                "$ref": "#/components/schemas/ReplanRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Rerouted plan with Delta explanation",
+            "description": "Replan alternative with delta",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "alternatives": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/TripAlternative" }
-                    },
-                    "delta": {
-                      "type": "object",
-                      "properties": {
-                        "message": { "type": "string" },
-                        "addedMinutes": { "type": "number" },
-                        "addedKm": { "type": "number" },
-                        "reroutedStopName": { "type": "string" }
-                      },
-                      "required": ["message", "addedMinutes", "addedKm"]
-                    }
-                  },
-                  "required": ["alternatives", "delta"]
+                  "$ref": "#/components/schemas/ReplanResponse"
                 }
               }
             }
-          },
-          "422": { "$ref": "#/components/responses/ApiErrorResponse" }
+          }
         }
       }
     },
     "/api/plan/sos": {
       "post": {
-        "summary": "Find 3 nearest reachable stations in low-battery emergency",
+        "summary": "Emergency nearby charging points",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "lat": { "type": "number" },
-                  "lng": { "type": "number" },
-                  "currentSoc": { "type": "number" }
-                },
-                "required": ["lat", "lng", "currentSoc"]
+                "$ref": "#/components/schemas/SosRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "3 nearest reachable stations",
+            "description": "SOS options",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "options": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "station": { "$ref": "#/components/schemas/Station" },
-                          "distanceKm": { "type": "number" },
-                          "etaMin": { "type": "number" },
-                          "arrivalSoc": { "type": "number" },
-                          "rationale": { "type": "string" }
-                        },
-                        "required": ["station", "distanceKm", "etaMin", "arrivalSoc", "rationale"]
-                      }
-                    }
-                  },
-                  "required": ["options"]
+                  "$ref": "#/components/schemas/SosResponse"
                 }
               }
             }
@@ -280,18 +1267,14 @@
     },
     "/api/reports": {
       "get": {
-        "summary": "Get latest reports for station ids",
-        "parameters": [
-          { "name": "stationIds", "in": "query", "schema": { "type": "string" } }
-        ],
+        "summary": "Community reports and effective statuses",
         "responses": {
           "200": {
-            "description": "Community reports",
+            "description": "Reports list",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/CommunityReport" }
+                  "$ref": "#/components/schemas/ReportsQueryResponse"
                 }
               }
             }
@@ -299,56 +1282,42 @@
         }
       },
       "post": {
-        "summary": "Submit a station status report",
+        "summary": "Submit community report",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "stationId": { "type": "string" },
-                  "status": { "type": "string", "enum": ["working", "queue", "broken", "blocked"] },
-                  "queueMin": { "type": "number" },
-                  "deviceId": { "type": "string" }
+                  "stationId": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "waitMinutes": {
+                    "type": "number"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
                 },
-                "required": ["stationId", "status", "deviceId"]
+                "required": [
+                  "stationId",
+                  "status"
+                ]
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Report accepted",
+            "description": "Report created",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": { "type": "boolean" },
-                    "report": { "$ref": "#/components/schemas/CommunityReport" }
-                  },
-                  "required": ["success", "report"]
+                  "$ref": "#/components/schemas/CommunityReport"
                 }
-              }
-            }
-          },
-          "429": { "$ref": "#/components/responses/ApiErrorResponse" }
-        }
-      }
-    },
-    "/api/reports/stream": {
-      "get": {
-        "summary": "SSE Stream of real-time community reports",
-        "parameters": [
-          { "name": "stationIds", "in": "query", "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "EventSource stream",
-            "content": {
-              "text/event-stream": {
-                "schema": { "type": "string" }
               }
             }
           }
@@ -357,26 +1326,23 @@
     },
     "/api/trips": {
       "post": {
-        "summary": "Save a trip for sharing or live navigation",
+        "summary": "Save trip",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SaveTripRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SaveTripRequest"
+              }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Trip saved with id",
+          "201": {
+            "description": "Trip saved",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "string" }
-                  },
-                  "required": ["id"]
+                  "$ref": "#/components/schemas/SaveTripResponse"
                 }
               }
             }
@@ -386,292 +1352,101 @@
     },
     "/api/trips/{id}": {
       "get": {
-        "summary": "Get saved trip details",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
+        "summary": "Get saved trip by 8-char id",
         "responses": {
           "200": {
             "description": "Trip details",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/TripDetails" }
+                "schema": {
+                  "$ref": "#/components/schemas/TripDetails"
+                }
               }
             }
-          },
-          "404": { "$ref": "#/components/responses/ApiErrorResponse" }
-        }
-      }
-    }
-  },
-  "components": {
-    "responses": {
-      "ApiErrorResponse": {
-        "description": "Standardized API Error",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/ApiError" }
           }
         }
       }
     },
-    "schemas": {
-      "ApiError": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "object",
-            "properties": {
-              "code": {
-                "type": "string",
-                "enum": ["NO_FEASIBLE_PLAN", "INVALID_REQUEST", "RATE_LIMITED", "NOT_FOUND", "INTERNAL_ERROR"]
-              },
-              "message": { "type": "string" },
-              "details": {
-                "type": "object",
-                "properties": {
-                  "longestGapKm": { "type": "number" },
-                  "vehicleRealRangeKm": { "type": "number" },
-                  "suggestion": { "type": "string" }
-                }
-              },
-              "requestId": { "type": "string" }
-            },
-            "required": ["code", "message", "requestId"]
-          }
-        },
-        "required": ["error"]
-      },
-      "LatLng": {
-        "type": "object",
-        "properties": {
-          "lat": { "type": "number" },
-          "lng": { "type": "number" }
-        },
-        "required": ["lat", "lng"]
-      },
-      "GeoPoint": {
-        "type": "object",
-        "properties": {
-          "label": { "type": "string" },
-          "lat": { "type": "number" },
-          "lng": { "type": "number" }
-        },
-        "required": ["label", "lat", "lng"]
-      },
-      "Vehicle": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "usableKwh": { "type": "number" },
-          "whPerKmHwy": { "type": "number" },
-          "maxDcKw": { "type": "number" },
-          "maxAcKw": { "type": "number" },
-          "massKg": { "type": "number" },
-          "connectors": {
-            "type": "array",
-            "items": { "type": "string" }
-          }
-        },
-        "required": ["id", "name", "usableKwh", "whPerKmHwy", "maxDcKw", "maxAcKw", "massKg", "connectors"]
-      },
-      "Connector": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string" },
-          "kw": { "type": "number" },
-          "qty": { "type": "number" }
-        },
-        "required": ["type", "kw", "qty"]
-      },
-      "Station": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "operator": { "type": "string" },
-          "lat": { "type": "number" },
-          "lng": { "type": "number" },
-          "address": { "type": "string" },
-          "connectors": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/Connector" }
-          },
-          "maxKw": { "type": "number" },
-          "status": { "type": "string", "enum": ["working", "unknown", "down"] },
-          "source": { "type": "string" },
-          "lastVerified": { "type": "string" },
-          "availability": {
-            "type": "object",
-            "properties": {
-              "probFree": { "type": "number" },
-              "label": { "type": "string", "enum": ["Estimated", "Reported 12 min ago", "Operator data"] },
-              "forecast12h": { "type": "array", "items": { "type": "number" } }
-            },
-            "required": ["probFree", "label", "forecast12h"]
-          },
-          "distanceAlongRoute": { "type": "number" },
-          "detourKm": { "type": "number" }
-        },
-        "required": ["id", "name", "operator", "lat", "lng", "address", "connectors", "maxKw", "status"]
-      },
-      "RouteSegment": {
-        "type": "object",
-        "properties": {
-          "from": { "$ref": "#/components/schemas/LatLng" },
-          "to": { "$ref": "#/components/schemas/LatLng" },
-          "km": { "type": "number" },
-          "elevDeltaM": { "type": "number" }
-        },
-        "required": ["from", "to", "km"]
-      },
-      "RouteData": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "geometry": { "type": "object" },
-          "distanceKm": { "type": "number" },
-          "durationMin": { "type": "number" },
-          "segments": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/RouteSegment" }
-          }
-        },
-        "required": ["id", "geometry", "distanceKm", "durationMin", "segments"]
-      },
-      "PlanStop": {
-        "type": "object",
-        "properties": {
-          "station": { "$ref": "#/components/schemas/Station" },
-          "arrivalSocPct": { "type": "number" },
-          "departureSocPct": { "type": "number" },
-          "chargeMinutes": { "type": "number" },
-          "chargeKwh": { "type": "number" },
-          "costInr": { "type": "number" },
-          "detourMinutes": { "type": "number" },
-          "reliabilityScore": { "type": "number" }
-        },
-        "required": ["station", "arrivalSocPct", "departureSocPct", "chargeMinutes", "chargeKwh", "costInr", "detourMinutes", "reliabilityScore"]
-      },
-      "RibbonPoint": {
-        "type": "object",
-        "properties": {
-          "distanceKm": { "type": "number" },
-          "socPct": { "type": "number" },
-          "type": { "type": "string", "enum": ["drive", "charge"] }
-        },
-        "required": ["distanceKm", "socPct", "type"]
-      },
-      "TripAlternative": {
-        "type": "object",
-        "properties": {
-          "label": { "type": "string", "enum": ["Fastest", "Safest"] },
-          "stops": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/PlanStop" }
-          },
-          "totals": {
-            "type": "object",
-            "properties": {
-              "distanceKm": { "type": "number" },
-              "driveMinutes": { "type": "number" },
-              "chargeMinutes": { "type": "number" },
-              "totalMinutes": { "type": "number" },
-              "costInr": { "type": "number" },
-              "arrivalSocPct": { "type": "number" }
-            },
-            "required": ["distanceKm", "driveMinutes", "chargeMinutes", "totalMinutes", "costInr", "arrivalSocPct"]
-          },
-          "calmIndex": {
-            "type": "object",
-            "properties": {
-              "score": { "type": "number" },
-              "line": { "type": "string" }
-            },
-            "required": ["score", "line"]
-          },
-          "ribbonSeries": {
-            "type": "object",
-            "properties": {
-              "points": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/RibbonPoint" }
-              },
-              "chargeBars": {
-                "type": "array",
-                "items": { "type": "object" }
+    "/api/chargers": {
+      "post": {
+        "summary": "Add public community charger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChargerRequest"
               }
-            },
-            "required": ["points"]
+            }
           }
         },
-        "required": ["label", "stops", "totals", "calmIndex", "ribbonSeries"]
-      },
-      "PlanRequest": {
-        "type": "object",
-        "properties": {
-          "routeId": { "type": "string" },
-          "geometry": { "type": "object" },
-          "vehicle": { "$ref": "#/components/schemas/Vehicle" },
-          "custom": { "$ref": "#/components/schemas/Vehicle" },
-          "startSoc": { "type": "number" },
-          "targetArrivalSoc": { "type": "number" },
-          "mode": { "type": "string", "enum": ["cautious", "normal", "optimistic"] },
-          "departAt": { "type": "string" }
-        },
-        "required": ["startSoc", "targetArrivalSoc", "mode"]
-      },
-      "PlanResponse": {
-        "type": "object",
-        "properties": {
-          "alternatives": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/TripAlternative" }
+        "responses": {
+          "201": {
+            "description": "Charger submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateChargerResponse"
+                }
+              }
+            }
           },
-          "reachabilityKm": { "type": "number" }
+          "409": {
+            "description": "Duplicate nearby",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chargers/{id}/confirm": {
+      "post": {
+        "summary": "Confirm community charger worked/broken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmChargerRequest"
+              }
+            }
+          }
         },
-        "required": ["alternatives", "reachabilityKm"]
-      },
-      "CommunityReport": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "stationId": { "type": "string" },
-          "status": { "type": "string", "enum": ["working", "queue", "broken", "blocked"] },
-          "queueMin": { "type": "number" },
-          "deviceId": { "type": "string" },
-          "createdAt": { "type": "string" },
-          "weight": { "type": "number" }
-        },
-        "required": ["id", "stationId", "status", "deviceId", "createdAt", "weight"]
-      },
-      "SaveTripRequest": {
-        "type": "object",
-        "properties": {
-          "routeId": { "type": "string" },
-          "originLabel": { "type": "string" },
-          "destLabel": { "type": "string" },
-          "startSoc": { "type": "number" },
-          "targetArrivalSoc": { "type": "number" },
-          "mode": { "type": "string" },
-          "selectedLabel": { "type": "string" },
-          "plan": { "$ref": "#/components/schemas/TripAlternative" },
-          "vehicle": { "$ref": "#/components/schemas/Vehicle" }
-        },
-        "required": ["originLabel", "destLabel", "plan"]
-      },
-      "TripDetails": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "originLabel": { "type": "string" },
-          "destLabel": { "type": "string" },
-          "createdAt": { "type": "string" },
-          "plan": { "$ref": "#/components/schemas/TripAlternative" },
-          "vehicle": { "$ref": "#/components/schemas/Vehicle" }
-        },
-        "required": ["id", "originLabel", "destLabel", "plan"]
+        "responses": {
+          "200": {
+            "description": "Vote recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmChargerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Owner cannot vote",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

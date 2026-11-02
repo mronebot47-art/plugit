@@ -82,6 +82,6 @@ export function availabilityChip(station: Station, reportAge?: number): string {
     if (reportAge < 60) return `Reported ${Math.round(reportAge)} min ago`;
     return `Reported ${Math.round(reportAge / 60)} h ago`;
   }
-  if (station.source === 'ocm') return 'Estimated';
+  if ((station.source as string) === 'ocm') return 'Estimated';
   return 'Estimated';
 }

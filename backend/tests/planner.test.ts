@@ -57,15 +57,15 @@ const planWithBroken = computePlan({
   startSoc: 80,
   targetArrivalSoc: 15,
   stations: STATIONS,
-  failedStationIds: ['krishnagiri-1'],
+  failedStationIds: ['ocm:274914'],
 });
 const hasKrishnagiri1 = planWithBroken.alternatives[0]?.stops.some(
-  (s) => s.station.id === 'krishnagiri-1'
+  (s) => s.station.id === 'ocm:274914'
 );
 assert.equal(
   hasKrishnagiri1,
   false,
-  'Down/failed station (krishnagiri-1) must never appear in planned stops'
+  'Down/failed station (ocm:274914) must never appear in planned stops'
 );
 console.log('✓ Test 2: Failed/broken station is strictly excluded from plan.');
 

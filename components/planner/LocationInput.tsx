@@ -36,7 +36,7 @@ export function LocationInput({ placeholder, value, onChange, label }: Props) {
 
   function select(p: GeoPoint) {
     onChange(p);
-    setQuery(p.label);
+    setQuery(p.label || '');
     setOpen(false);
     setResults([]);
   }

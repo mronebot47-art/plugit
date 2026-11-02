@@ -16,9 +16,13 @@ export type PlanRequest = components['schemas']['PlanRequest'];
 export type PlanResponse = components['schemas']['PlanResponse'];
 export type CommunityReport = components['schemas']['CommunityReport'];
 export type ApiError = components['schemas']['ApiError'];
-export type GeoPoint = components['schemas']['GeoPoint'];
-export type LatLng = components['schemas']['LatLng'];
+export type GeoPoint = { lat: number; lng: number; label?: string };
+export type LatLng = { lat: number; lng: number };
 export type TripDetails = components['schemas']['TripDetails'];
 export type SaveTripRequest = components['schemas']['SaveTripRequest'];
+export type CreateChargerRequest = components['schemas']['CreateChargerRequest'];
+export type CreateChargerResponse = components['schemas']['CreateChargerResponse'];
+export type ConfirmChargerRequest = components['schemas']['ConfirmChargerRequest'];
+export type ConfirmChargerResponse = components['schemas']['ConfirmChargerResponse'];
 
 export type PlanMode = 'cautious' | 'normal' | 'optimistic';

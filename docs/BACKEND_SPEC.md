@@ -5,7 +5,7 @@ i no i want api  it api key for map is  1c38a50a-5c0e-425c-85af-52e3fb934136 # R
 You are a senior product engineer and motion designer building a hackathon-winning web app in one focused build. Work in milestones (section 14). Before writing code, produce an implementation plan artifact. After each milestone, run the app in the browser agent, verify the acceptance checks listed for that milestone, and fix failures before moving on. Do not skip ahead. Do not leave TODOs, lorem ipsum, or placeholder images.
 
 # 1. PRODUCT
-Name: WAYVOLT
+Name: PlugIt
 Tagline: "Know where you'll charge before you leave."
 Problem: EV drivers on long-distance trips struggle to find available charging stations, especially where infrastructure is thin. This causes range anxiety, delays, and inconvenience.
 Primary market: India (default start city Bengaluru). Currency INR, distance km, energy kWh. Connector types: CCS2, Type 2 (AC), CHAdeMO, GB/T, Bharat DC001/AC001, 3-pin/15A.
